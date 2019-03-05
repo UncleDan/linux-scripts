@@ -14,8 +14,8 @@ sudo apt-get upgrade -y
 echo ""
 echo "** Install preferred packages..."
 echo ""
-echo "* apt-get install libreoffice firefox firefox-locale-it thunderbird thunderbird-locale-it keepassx vlc flatpak openssh-server git putty wine-stable zip unzip p7zip filezilla"
-sudo apt-get install -y libreoffice firefox firefox-locale-it thunderbird thunderbird-locale-it keepassx vlc flatpak openssh-server git putty wine-stable zip unzip p7zip filezilla
+echo "* apt-get install libreoffice firefox firefox-locale-it thunderbird thunderbird-locale-it keepassx vlc flatpak openssh-server xrdp git putty wine-stable zip unzip p7zip filezilla"
+sudo apt-get install -y libreoffice firefox firefox-locale-it thunderbird thunderbird-locale-it keepassx vlc flatpak openssh-server xrdp git putty wine-stable zip unzip p7zip filezilla
 echo ""
 echo "** Installing snap software..."
 echo ""
@@ -46,11 +46,37 @@ echo ""
 wget http://www.danielelolli.it/files/archive/Software/FreeFileSync/Linux/FreeFileSync_10.9_Linux.tar.gz
 tar -xvzf FreeFileSync_10.9_Linux.tar.gz
 rm -rf FreeFileSync_10.9_Linux.tar.gz
+unzip FreeFileSync/Resources.zip -d FreeFileSync/Resources
 mkdir -p ~/Software
 mv FreeFileSync ~/Software
-echo ""
-echo "ATTENZIONE! Non è stato creato alcun launcher. Per eseguire FreeFileSyc e RealTimeSync fare doppio click sui rispettivi eseguibili."
-echo ""
+cat > ~/.local/share/applications/FreeFileSyncSync.desktop <<EOF
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=/home/utente/Software/FreeFileSync/Resources/FreeFileSync.png
+Icon[it_IT]=/home/utente/Software/FreeFileSync/Resources/FreeFileSync.png
+Name[it_IT]=FreeFileSync
+Exec=/home/utente/Software/FreeFileSync/FreeFileSync
+Name=FreeFileSync
+EOF
+chmod +x ~/.local/share/applications/FreeFileSyncSync.desktop
+cat > ~/.local/share/applications/RealTimeSync.desktop <<EOF
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=/home/utente/Software/FreeFileSync/Resources/RealTimeSync.png
+Icon[it_IT]=/home/utente/Software/FreeFileSync/Resources/RealTimeSync.png
+Name[it_IT]=RealTimeSync
+Exec=/home/utente/Software/FreeFileSync/RealTimeSync
+Name=RealTimeSync
+EOF
+chmod +x ~/.local/share/applications/RealTimeSync.desktop
 echo ""
 echo "** Installing pCloud AppImage..."
 echo ""
