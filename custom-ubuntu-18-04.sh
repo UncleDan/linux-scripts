@@ -49,6 +49,7 @@ rm -rf FreeFileSync_10.9_Linux.tar.gz
 unzip FreeFileSync/Resources.zip -d FreeFileSync/Resources
 mkdir -p ~/Software
 mv FreeFileSync ~/Software
+mkdir -p ~/.local/share/applications
 cat > ~/.local/share/applications/FreeFileSyncSync.desktop <<EOF
 #!/usr/bin/env xdg-open
 
