@@ -42,14 +42,14 @@ rm -rf google-chrome-stable_current_amd64.deb
 echo ""
 echo "** Installing Angry IP Scanner deb package..."
 echo ""
-wget http://www.danielelolli.it/files/archive/Software/AngryIPScanner/Linux/ipscan_3.5.5_amd64.deb
+wget http://www.danielelolli.it/files/archive/Software/Linux/ipscan_3.5.5_amd64.deb
 sudo dpkg -i ipscan_3.5.5_amd64.deb
 sudo apt install -f
 rm -rf ipscan_3.5.5_amd64.deb
 echo ""
 echo "** Installing FreeFileSync..."
 echo ""
-wget http://www.danielelolli.it/files/archive/Software/FreeFileSync/Linux/FreeFileSync_10.10_Linux.tar.gz
+wget http://www.danielelolli.it/files/archive/Software/Linux/FreeFileSync_10.10_Linux.tar.gz
 tar -xvzf FreeFileSync_10.10_Linux.tar.gz
 rm -rf FreeFileSync_10.10_Linux.tar.gz
 unzip -o FreeFileSync/Resources.zip -d FreeFileSync/Resources
@@ -88,8 +88,8 @@ echo ""
 echo "** Installing pCloud AppImage..."
 echo ""
 mkdir -p ~/Software/pCloud
-wget http://www.danielelolli.it/files/archive/Software/pCloud/Linux/2019-02-27/pcloud
-mv pcloud ~/Software/pCloud
+wget http://www.danielelolli.it/files/archive/Software/Linux/pcloud_2019-03-23_amd64
+mv pcloud_2019-03-23_amd64 ~/Software/pCloud/pcloud
 chmod +x ~/Software/pCloud/pcloud
 echo ""
 echo "ATTENZIONE! per attivare pCloud fare doppio click sul relativo eseguibile."
