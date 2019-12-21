@@ -49,9 +49,9 @@ rm -rf ipscan_3.5.5_amd64.deb
 echo ""
 echo "** Installing FreeFileSync..."
 echo ""
-wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/FreeFileSync_10.10_Linux.tar.gz
-tar -xvzf FreeFileSync_10.10_Linux.tar.gz
-rm -rf FreeFileSync_10.10_Linux.tar.gz
+wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/FreeFileSync_10.18_Linux.tar.gz
+tar -xvzf FreeFileSync_10.18_Linux.tar.gz
+rm -rf FreeFileSync_10.18_Linux.tar.gz
 unzip -o FreeFileSync/Resources.zip -d FreeFileSync/Resources
 mkdir -p ~/Software
 mv FreeFileSync ~/Software
