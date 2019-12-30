@@ -49,9 +49,9 @@ rm -rf ipscan_3.5.5_amd64.deb
 echo ""
 echo "** Installing FreeFileSync..."
 echo ""
-wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/FreeFileSync_10.18_Linux.tar.gz
-tar -xvzf FreeFileSync_10.18_Linux.tar.gz
-rm -rf FreeFileSync_10.18_Linux.tar.gz
+wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/FreeFileSync_10.19_Linux.tar.gz
+tar -xvzf FreeFileSync_10.19_Linux.tar.gz
+rm -rf FreeFileSync_10.19_Linux.tar.gz
 unzip -o FreeFileSync/Resources.zip -d FreeFileSync/Resources
 mkdir -p ~/Software
 mv FreeFileSync ~/Software
@@ -60,36 +60,50 @@ cat > ~/.local/share/applications/FreeFileSyncSync.desktop <<EOF
 #!/usr/bin/env xdg-open
 
 [Desktop Entry]
-Version=1.0
 Type=Application
-Terminal=false
-Icon=/home/utente/Software/FreeFileSync/Resources/FreeFileSync.png
-Icon[it_IT]=/home/utente/Software/FreeFileSync/Resources/FreeFileSync.png
-Name[it_IT]=FreeFileSync
-Exec=/home/utente/Software/FreeFileSync/FreeFileSync
 Name=FreeFileSync
+Name[de]=FreeFileSync
+Name[it]=FreeFileSync
+GenericName=Folder Comparison and Synchronization
+GenericName[de_DE]=Ordnervergleich und Synchronisation
+GenericName[it_IT]=Comparazione e Sincronizzazione di Cartelle
+Exec=/home/carlotta/Software/FreeFileSync/FreeFileSync %F
+Icon=/home/carlotta/Software/FreeFileSync/Resources/FreeFileSync.png
+Icon[de]=/home/carlotta/Software/FreeFileSync/Resources/FreeFileSync.png
+Icon[it]=/home/carlotta/Software/FreeFileSync/Resources/FreeFileSync.png
+NoDisplay=false
+Terminal=false
+Categories=Utility;FileTools;
+StartupNotify=true
 EOF
 chmod +x ~/.local/share/applications/FreeFileSyncSync.desktop
 cat > ~/.local/share/applications/RealTimeSync.desktop <<EOF
 #!/usr/bin/env xdg-open
 
 [Desktop Entry]
-Version=1.0
 Type=Application
-Terminal=false
-Icon=/home/utente/Software/FreeFileSync/Resources/RealTimeSync.png
-Icon[it_IT]=/home/utente/Software/FreeFileSync/Resources/RealTimeSync.png
-Name[it_IT]=RealTimeSync
-Exec=/home/utente/Software/FreeFileSync/RealTimeSync
 Name=RealTimeSync
+Name[de]=RealTimeSync
+Name[it]=RealTimeSync
+GenericName=Automated Synchronization
+GenericName[de_DE]=Automatisierte Synchronisation
+GenericName[it_IT]=Sincronizzazione Automatica
+Exec=/home/carlotta/Software/FreeFileSync/RealTimeSync %f
+Icon=/home/carlotta/Software/FreeFileSync/Resources/RealTimeSync.png
+Icon[de]=/home/carlotta/Software/FreeFileSync/Resources/RealTimeSync.png
+Icon[it]=/home/carlotta/Software/FreeFileSync/Resources/RealTimeSync.png
+NoDisplay=false
+Terminal=false
+Categories=Utility;FileTools;
+StartupNotify=true
 EOF
 chmod +x ~/.local/share/applications/RealTimeSync.desktop
 echo ""
 echo "** Installing pCloud AppImage..."
 echo ""
 mkdir -p ~/Software/pCloud
-wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/pcloud_2019-03-23_amd64
-mv pcloud_2019-03-23_amd64 ~/Software/pCloud/pcloud
+wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/pcloud_2019-12-30_amd64
+mv pcloud_2019-12-30_amd64 ~/Software/pCloud/pcloud
 chmod +x ~/Software/pCloud/pcloud
 echo ""
 echo "ATTENZIONE! per attivare pCloud fare doppio click sul relativo eseguibile."
