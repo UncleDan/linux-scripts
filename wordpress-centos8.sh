@@ -30,8 +30,8 @@ tar xf wordpress.tar.gz
 # Copy the extracted WordPress directory into the /var/www/html directory:
 rsync -azP -delete wordpress/ /var/www/html/
 # Lastly in this step, change permissions and change file SELinux security context:
-chown -R apache:apache /var/www/html/wordpress
-chcon -t httpd_sys_rw_content_t /var/www/html/wordpress -R
+chown -R apache:apache /var/www/html/*
+chcon -t httpd_sys_rw_content_t /var/www/html/* -R
 # Access WordPress installation wizard and perform the actual WordPress installation. Navigate your browser to http://localhost/wordpress or http://SERVER-HOST-NAME/wordpress and follow the instructions.
 # Enter previously configured database details.
 # Enter previously configured database details as per Step 5.
