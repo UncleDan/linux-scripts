@@ -441,6 +441,9 @@ chcon -t httpd_sys_rw_content_t /var/www/mywordpress.test/ -R
 find /var/www/mywordpress.test/ -type d -exec chmod 750 {} \;
 find /var/www/mywordpress.test/ -type f -exec chmod 640 {} \;
 #
+# Set SElinux to allow outgoing connections (or plugins and themes won't install!)
+setsebool httpd_can_network_connect on
+#
 # Restart Apache:
 systemctl restart httpd.service
 #
