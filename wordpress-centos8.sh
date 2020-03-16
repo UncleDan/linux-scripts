@@ -20,7 +20,7 @@
 # Install all prerequisites.
 # 
 # The following command will install all prerequisites and tools required to perform the WordPress installation:
-dnf install httpd php-mysqlnd php-fpm php-json php-curl php-gd php-mbstring php-xml php-xmlrpc php-soap php-intl php-zip mariadb-server curl git rsync tar zip unzip -y
+dnf install curl git httpd mariadb-server php-bcmath php-curl php-fpm php-gd php-intl php-json php-mbstring php-mysqlnd php-soap php-xml php-xmlrpc php-zip rsync tar unzip wget zip -y
 # Open HTTP and optionally HTTPS port 80 and 443 on your firewall:
 firewall-cmd --permanent --zone=public --add-service=http 
 firewall-cmd --permanent --zone=public --add-service=https
@@ -442,7 +442,7 @@ find /var/www/mywordpress.test/ -type d -exec chmod 750 {} \;
 find /var/www/mywordpress.test/ -type f -exec chmod 640 {} \;
 #
 # Set SElinux to allow outgoing connections (or plugins and themes won't install!)
-setsebool httpd_can_network_connect on
+setsebool -P httpd_can_network_connect on
 #
 # Restart Apache:
 systemctl restart httpd.service
