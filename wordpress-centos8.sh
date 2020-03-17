@@ -444,6 +444,12 @@ find /var/www/mywordpress.test/ -type f -exec chmod 640 {} \;
 # Set SElinux to allow outgoing connections (or plugins and themes won't install!)
 setsebool -P httpd_can_network_connect on
 #
+# Adjust PHP parameters for uploads, memory usage and time limits
+sed -i "s|upload_max_filesize = 2M|upload_max_filesize = 256M|g" /etc/php.ini
+sed -i "s|post_max_size = 8M|post_max_size = 256M|g" /etc/php.ini
+sed -i "s|memory_limit = 128M|memory_limit = 512M|g" /etc/php.ini
+sed -i "s|max_execution_time = 30|max_execution_time = 180|g" /etc/php.ini#
+#
 # Restart Apache:
 systemctl restart httpd.service
 #
