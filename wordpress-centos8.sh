@@ -413,10 +413,21 @@ EOF
 curl https://it.wordpress.org/latest-it_IT.tar.gz --output wordpress-it_IT.tar.gz
 tar xf wordpress-it_IT.tar.gz
 rm -f wordpress-it_IT.tar.gz
-# Create files and folders to avoid permission issues
-touch wordpress/.htaccess
+# Create folders to avoid permission issues
 mkdir -p wordpress/wp-content/uploads
 mkdir -p wordpress/wp-content/upgrade
+# Create htaccess with php directives
+cat > wordpress/.htaccess <<EOF
+# BEGIN Set PHP values for upload, memory and execution time
+
+php_value upload_max_filesize 256M
+php_value post_max_size 256M
+php_value memory_limit 512M
+php_value max_execution_time 180 
+
+# END Set PHP values for upload, memory and execution time
+
+EOF
 #
 # Create WordPress config file
 cp wordpress/wp-config-sample.php wordpress/wp-config.php
@@ -431,15 +442,6 @@ sed -i "s|define('AUTH_SALT',        'Mettere la vostra frase unica qui');|defin
 sed -i "s|define('SECURE_AUTH_SALT', 'Mettere la vostra frase unica qui');|define('SECURE_AUTH_SALT', '666666666666666666666666666666SaLt666666666666666666666666666666');|g" wordpress/wp-config.php
 sed -i "s|define('LOGGED_IN_SALT',   'Mettere la vostra frase unica qui');|define('LOGGED_IN_SALT',   '777777777777777777777777777777SaLt777777777777777777777777777777');|g" wordpress/wp-config.php
 sed -i "s|define('NONCE_SALT',       'Mettere la vostra frase unica qui');|define('NONCE_SALT',       '888888888888888888888888888888SaLt888888888888888888888888888888');|g" wordpress/wp-config.php
-cat >> wordpress/wp-config.php <<EOF
-
-/** Remposta i limiti di PHP per upload, memoria e tempo di esecuzione. */
-@ini_set('upload_max_filesize' , '256M' );
-@ini_set('post_max_size' , '256M' );
-@ini_set('memory_limit' , '512M' );
-@ini_set('max_execution_time' , '180' );
-
-EOF
 #
 # Move the extracted WordPress directory into the /var/www/mywordpress.test directory:
 mv wordpress /var/www/mywordpress.test
