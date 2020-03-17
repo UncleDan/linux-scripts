@@ -431,6 +431,15 @@ sed -i "s|define('AUTH_SALT',        'Mettere la vostra frase unica qui');|defin
 sed -i "s|define('SECURE_AUTH_SALT', 'Mettere la vostra frase unica qui');|define('SECURE_AUTH_SALT', '666666666666666666666666666666SaLt666666666666666666666666666666');|g" wordpress/wp-config.php
 sed -i "s|define('LOGGED_IN_SALT',   'Mettere la vostra frase unica qui');|define('LOGGED_IN_SALT',   '777777777777777777777777777777SaLt777777777777777777777777777777');|g" wordpress/wp-config.php
 sed -i "s|define('NONCE_SALT',       'Mettere la vostra frase unica qui');|define('NONCE_SALT',       '888888888888888888888888888888SaLt888888888888888888888888888888');|g" wordpress/wp-config.php
+cat >> wordpress/wp-config.php <<EOF
+
+/** Remposta i limiti di PHP per upload, memoria e tempo di esecuzione. */
+@ini_set('upload_max_filesize' , '256M' );
+@ini_set('post_max_size' , '256M' );
+@ini_set('memory_limit' , '512M' );
+@ini_set('max_execution_time' , '180' );
+
+EOF
 #
 # Move the extracted WordPress directory into the /var/www/mywordpress.test directory:
 mv wordpress /var/www/mywordpress.test
@@ -443,12 +452,6 @@ find /var/www/mywordpress.test/ -type f -exec chmod 640 {} \;
 #
 # Set SElinux to allow outgoing connections (or plugins and themes won't install!)
 setsebool -P httpd_can_network_connect on
-#
-# Adjust PHP parameters for uploads, memory usage and time limits
-sed -i "s|upload_max_filesize = 2M|upload_max_filesize = 256M|g" /etc/php.ini
-sed -i "s|post_max_size = 8M|post_max_size = 256M|g" /etc/php.ini
-sed -i "s|memory_limit = 128M|memory_limit = 512M|g" /etc/php.ini
-sed -i "s|max_execution_time = 30|max_execution_time = 180|g" /etc/php.ini#
 #
 # Restart Apache:
 systemctl restart httpd.service
