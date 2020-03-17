@@ -413,21 +413,10 @@ EOF
 curl https://it.wordpress.org/latest-it_IT.tar.gz --output wordpress-it_IT.tar.gz
 tar xf wordpress-it_IT.tar.gz
 rm -f wordpress-it_IT.tar.gz
-# Create folders to avoid permission issues
+# Create files and folders to avoid permission issues
+touch wordpress/.htaccess
 mkdir -p wordpress/wp-content/uploads
 mkdir -p wordpress/wp-content/upgrade
-# Create htaccess with php directives
-cat > wordpress/.htaccess <<EOF
-# BEGIN Set PHP values for upload, memory and execution time
-
-php_value upload_max_filesize 256M
-php_value post_max_size 256M
-php_value memory_limit 512M
-php_value max_execution_time 180 
-
-# END Set PHP values for upload, memory and execution time
-
-EOF
 #
 # Create WordPress config file
 cp wordpress/wp-config-sample.php wordpress/wp-config.php
