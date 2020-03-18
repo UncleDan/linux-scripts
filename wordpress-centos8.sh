@@ -17,9 +17,9 @@
 # 777777777777777777777777777777SaLt777777777777777777777777777777
 # 888888888888888888888888888888SaLt888888888888888888888888888888
 
-echo "####################################################################################"
-echo "# WordPress Auto Installation Script for CentOS 8 by Daniele Lolli a.k.a. UncleDan #"
-echo "####################################################################################"
+echo "###############################################################################"
+echo "# WordPress Auto Installation Script for CentOS 8 by Daniele Lolli (UncleDan) #"
+echo "###############################################################################"
 echo "
 *** START Install all prerequisites...
 "
@@ -516,7 +516,10 @@ echo "
 *** DONE Restarting Apache service.
 "
 echo "
-*** FINISH: you can now access WordPress installation wizard and perform the actual WordPress installation. Navigate your browser to http://SERVER-IP-ADDRESS/ or http://SERVER-HOST-NAME and follow the instructions.
+*** FINISH: you can now access WordPress installation wizard and perform the
+    actual WordPress installation. Navigate your browser to
+	http://SERVER-IP-ADDRESS/ or http://SERVER-HOST-NAME
+	and follow the instructions.
 "
 # Uncomment the following line if you want installation to wait for ENTER to finish
 read
