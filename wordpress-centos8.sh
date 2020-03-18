@@ -23,7 +23,8 @@ echo "##########################################################################
 echo "
 *** START Install all prerequisites...
 "
-dnf install curl git httpd mariadb-server php-bcmath php-curl php-fpm php-gd php-intl php-json php-mbstring php-mysqlnd php-soap php-xml php-xmlrpc php-zip rsync tar unzip wget zip -y
+dnf install httpd mariadb-server php-bcmath php-curl php-fpm php-gd php-intl php-json php-mbstring php-mysqlnd php-soap php-xml php-xmlrpc php-zip unzip  -y
+# dnf install git rsync tar wget zip -y
 echo "
 *** DONE Install all prerequisites.
 "
@@ -451,9 +452,7 @@ echo "
 echo "
 *** START Download and extract WordPress...
 "
-curl https://it.wordpress.org/latest-it_IT.tar.gz --output wordpress-it_IT.tar.gz
-tar xf wordpress-it_IT.tar.gz
-rm -f wordpress-it_IT.tar.gz
+curl https://it.wordpress.org/latest-it_IT.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
 echo "
 *** END Download and extract WordPress...
 "
@@ -518,7 +517,7 @@ echo "
 echo "
 *** FINISH: you can now access WordPress installation wizard and perform the
     actual WordPress installation. Navigate your browser to
-	http://SERVER-IP-ADDRESS/ or http://SERVER-HOST-NAME
+	http://SERVER-IP-ADDRESS/ or http://SERVER-HOST-NAME/
 	and follow the instructions.
 "
 # Uncomment the following line if you want installation to wait for ENTER to finish
