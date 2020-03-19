@@ -20,53 +20,31 @@
 echo "###############################################################################"
 echo "# WordPress Auto Installation Script for CentOS 8 by Daniele Lolli (UncleDan) #"
 echo "###############################################################################"
-echo "
-*** START Install all prerequisites...
-"
+echo "\n\n*** START Installing all prerequisites..."
 dnf install httpd mariadb-server php-bcmath php-curl php-fpm php-gd php-intl php-json php-mbstring php-mysqlnd php-soap php-xml php-xmlrpc php-zip unzip  -y
 # dnf install git rsync tar wget zip -y
-echo "
-*** DONE Install all prerequisites.
-"
-echo "
-*** START Open HTTP and optionally HTTPS port 80 and 443 on your firewall...
-"
+echo "*** DONE Installing all prerequisites."
+echo "\n\n*** START Opening HTTP and optionally HTTPS port 80 and 443 on your firewall..."
 firewall-cmd --permanent --zone=public --add-service=http 
 firewall-cmd --permanent --zone=public --add-service=https
 firewall-cmd --reload
-echo "
-*** DONE Open HTTP and optionally HTTPS port 80 and 443 on your firewall.
-"
-echo "
-*** START start Apache webserver and the MariaDB services...
-"
+echo "*** DONE Opening HTTP and optionally HTTPS port 80 and 443 on your firewall."
+echo "\n\n*** START Starting Apache webserver and the MariaDB services..."
 systemctl start mariadb
 systemctl start httpd
-echo "
-*** DONE start Apache webserver and the MariaDB services.
-"
-echo "
-*** START Configure both the Apache webserver and the MariaDB services to start after reboot...
-"
+echo "*** DONE starting Apache webserver and the MariaDB services."
+echo "\n\n*** START Configuring both the Apache webserver and the MariaDB services to start after reboot..."
 systemctl enable mariadb
 systemctl enable httpd
-echo "
-*** DONE Configure both the Apache webserver and the MariaDB services to start after reboot.
-"
-echo "
-*** START Create a new database for WordPress and a new user with password with all privileges on it...
-"
+echo "*** DONE Configuring both the Apache webserver and the MariaDB services to start after reboot."
+echo "\n\n*** START Creating a new database for WordPress and a new user with password with all privileges on it..."
 mysql -u root -e "CREATE DATABASE mysql_wordpress_database;
 CREATE USER \`mysql_wordpress_user\`@\`localhost\` IDENTIFIED BY 'mysql_wordpress_password';
 GRANT ALL ON mysql_wordpress_database.* TO \`mysql_wordpress_user\`@\`localhost\`;
 FLUSH PRIVILEGES;
 EXIT"
-echo "
-*** DONE Create a new database for WordPress and a new user with password with all privileges on it.
-"
-echo "
-*** START Secure your MariaDB installation and set root password...
-"
+echo "*** DONE Creating a new database for WordPress and a new user with password with all privileges on it."
+echo "\n\n*** START Securing your MariaDB installation and set root password..."
 # Hint from: https://stackoverflow.com/questions/24270733/automate-mysql-secure-installation-with-echo-command-via-a-shell-script
 mysql -u root -e "UPDATE mysql.user SET Password=PASSWORD('mysql_root_password') WHERE User='root';
 DELETE FROM mysql.user WHERE User='';
@@ -75,19 +53,12 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE db='test' OR db='test\\_%';
 FLUSH PRIVILEGES;
 EXIT"
-echo "
-*** DONE Secure your MariaDB installation and set root password.
-"
-echo "
-*** START Stopping Apache service, or it will fail because the site folder does not exist yet...
-"
-systemctl stop httpd.service
-echo "
-*** DONE Stopping Apache service, or it will fail because the site folder does not exist yet.
-"
-echo "
-*** START Write new httpd.conf with custom folder and and rewrite enabled...
-"
+echo "*** DONE Securing your MariaDB installation and set root password."
+echo "\n\n*** START Stopping Apache and PHP services, or it will fail because the site folder does not exist yet..."
+systemctl stop httpd
+systemctl stop php-fpm
+echo "*** DONE Stopping Apache and PHP services, or it will fail because the site folder does not exist yet."
+echo "\n\n*** START Writing new httpd.conf with custom folder and and rewrite enabled..."
 cat > /etc/httpd/conf/httpd.conf <<EOF
 #
 # This is the main Apache HTTP server configuration file.  It contains the
@@ -446,28 +417,16 @@ EnableSendfile on
 # Load config files in the "/etc/httpd/conf.d" directory, if any.
 IncludeOptional conf.d/*.conf
 EOF
-echo "
-*** DONE Write new httpd.conf with custom folder and and rewrite enabled.
-"
-echo "
-*** START Download and extract WordPress...
-"
+echo "*** DONE Writing new httpd.conf with custom folder and and rewrite enabled."
+echo "\n\n*** START Downloading and extracting WordPress..."
 curl https://it.wordpress.org/latest-it_IT.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
-echo "
-*** END Download and extract WordPress...
-"
-echo "
-*** START Create files and folders to avoid permission issues...
-"
+echo "*** DONE Downloading and extracting WordPress..."
+echo "\n\n*** START Creating files and folders to avoid permission issues..."
 touch wordpress/.htaccess
 mkdir -p wordpress/wp-content/uploads
 mkdir -p wordpress/wp-content/upgrade
-echo "
-*** DONE Create files and folders to avoid permission issues.
-"
-echo "
-*** START Create WordPress config file...
-"
+echo "*** DONE Creating files and folders to avoid permission issues."
+echo "\n\n*** START Creating WordPress config file..."
 cp wordpress/wp-config-sample.php wordpress/wp-config.php
 sed -i "s|define('DB_NAME', 'nome_del_database_qui');|define('DB_NAME', 'mysql_wordpress_database');|g" wordpress/wp-config.php
 sed -i "s|define('DB_USER', 'nome_utente_qui');|define('DB_USER', 'mysql_wordpress_user');|g" wordpress/wp-config.php
@@ -480,45 +439,33 @@ sed -i "s|define('AUTH_SALT',        'Mettere la vostra frase unica qui');|defin
 sed -i "s|define('SECURE_AUTH_SALT', 'Mettere la vostra frase unica qui');|define('SECURE_AUTH_SALT', '666666666666666666666666666666SaLt666666666666666666666666666666');|g" wordpress/wp-config.php
 sed -i "s|define('LOGGED_IN_SALT',   'Mettere la vostra frase unica qui');|define('LOGGED_IN_SALT',   '777777777777777777777777777777SaLt777777777777777777777777777777');|g" wordpress/wp-config.php
 sed -i "s|define('NONCE_SALT',       'Mettere la vostra frase unica qui');|define('NONCE_SALT',       '888888888888888888888888888888SaLt888888888888888888888888888888');|g" wordpress/wp-config.php
-echo "
-*** DONE Create WordPress config file.
-"
-echo "
-*** START Move the extracted WordPress directory into the /var/www/ folder...
-"
+echo "*** DONE Creating WordPress config file."
+echo "\n\n*** START Moving the extracted WordPress directory into the /var/www/ folder..."
 mv wordpress /var/www/mywordpress.test
-echo "
-*** DONE Move the extracted WordPress directory into the /var/www/ folder.
-"
-echo "
-*** START Adjust permissions and change file SELinux security context...
-"
+echo "*** DONE Moving the extracted WordPress directory into the /var/www/ folder."
+echo "\n\n*** START Adjusting permissions and change file SELinux security context..."
 chown -R apache:apache /var/www/mywordpress.test/
 chcon -t httpd_sys_rw_content_t /var/www/mywordpress.test/ -R
 find /var/www/mywordpress.test/ -type d -exec chmod 750 {} \;
 find /var/www/mywordpress.test/ -type f -exec chmod 640 {} \;
-echo "
-*** DONE Adjust permissions and change file SELinux security context.
-"
-echo "
-*** START Set SElinux to allow outgoing connections (or plugins and themes won't install!)...
-"
+echo "*** DONE Adjusting permissions and change file SELinux security context."
+echo "\n\n*** START Setting SElinux to allow outgoing connections (or plugins and themes won't install!)..."
 setsebool -P httpd_can_network_connect on
-echo "
-*** DONE Set SElinux to allow outgoing connections (or plugins and themes won't install!).
-"
-echo "
-*** START Restarting Apache service...
-"
-systemctl restart httpd.service
-echo "
-*** DONE Restarting Apache service.
-"
-echo "
-*** FINISH: you can now access WordPress installation wizard and perform the
-    actual WordPress installation. Navigate your browser to
-	http://SERVER-IP-ADDRESS/ or http://SERVER-HOST-NAME/
-	and follow the instructions.
-"
-# Uncomment the following line if you want installation to wait for ENTER to finish
-read
+echo "*** DONE Setting SElinux to allow outgoing connections (or plugins and themes won't install!)."
+echo "\n\n*** START Adjusting PHP parameters for file uploads, memory usage and time limits for WordPress..."
+cat > /etc/php.d/99-wordpress.ini <<EOF
+; Adjust PHP parameters for file uploads, memory usage and time limits for WordPress
+upload_max_filesize = 256M
+post_max_size = 256M
+memory_limit = 512M
+max_execution_time = 180
+EOF
+echo "*** DONE Adjusting PHP parameters for file uploads, memory usage and time limits for WordPress."
+echo "\n\n*** START Restarting PHP and Apache services..."
+systemctl restart php-fpm
+systemctl restart httpd
+echo "\n\n*** DONE Restarting Apache service."
+echo "\n\n*** FINISH: you can now access WordPress installation wizard and perform the"
+echo "    actual WordPress installation. Navigate your browser to"
+echo "    http://SERVER-IP-ADDRESS/ or http://SERVER-HOST-NAME/"
+echo "    and follow the instructions."
