@@ -16,6 +16,7 @@
 # 666666666666666666666666666666SaLt666666666666666666666666666666
 # 777777777777777777777777777777SaLt777777777777777777777777777777
 # 888888888888888888888888888888SaLt888888888888888888888888888888
+# wpprefix_
 
 echo "###############################################################################"
 echo "# WordPress Auto Installation Script for CentOS 8 by Daniele Lolli (UncleDan) #"
@@ -61,8 +62,7 @@ echo "*** DONE Stopping Apache and PHP services, or it will fail because the sit
 echo -e "\n\n*** START Adjusting new httpd.conf with custom folder and and rewrite enabled..."
 sed -i "122 s|/var/www/html|/var/www/mywordpress.test|g ;
         134 s|/var/www/html|/var/www/mywordpress.test|g ;
-		154 s|AllowOverride None|AllowOverride All|g"
-		/etc/httpd/conf/httpd.conf
+        154 s|AllowOverride None|AllowOverride All|g" /etc/httpd/conf/httpd.conf
 echo "*** DONE Adjusting new httpd.conf with custom folder and and rewrite enabled."
 echo -e "\n\n*** START Downloading and extracting WordPress..."
 curl https://it.wordpress.org/latest-it_IT.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
@@ -84,8 +84,8 @@ sed -i "s|^define('DB_NAME',.*|define('DB_NAME', 'mysql_wordpress_database');|g 
         s|^define('AUTH_SALT',.*|define('AUTH_SALT',        '555555555555555555555555555555SaLt555555555555555555555555555555');|g ; 
         s|^define('SECURE_AUTH_SALT',.*;|define('SECURE_AUTH_SALT', '666666666666666666666666666666SaLt666666666666666666666666666666');|g ; 
         s|^define('LOGGED_IN_SALT',.*|define('LOGGED_IN_SALT',   '777777777777777777777777777777SaLt777777777777777777777777777777');|g ; 
-        s|^define('NONCE_SALT',.*|define('NONCE_SALT',       '888888888888888888888888888888SaLt888888888888888888888888888888');|g" 
-		wordpress/wp-config.php
+        s|^define('NONCE_SALT',.*|define('NONCE_SALT',       '888888888888888888888888888888SaLt888888888888888888888888888888');|g ;
+		s|^\$table_prefix =.*|\$table_prefix = 'wpprefix_';|g" wordpress/wp-config.php
 echo "*** DONE Creating WordPress config file."
 echo -e "\n\n*** START Moving the extracted WordPress directory into the /var/www/ folder..."
 mv wordpress /var/www/mywordpress.test
