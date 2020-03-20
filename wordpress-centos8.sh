@@ -87,6 +87,18 @@ sed -i "s|^define('DB_NAME',.*|define('DB_NAME', 'mysql_wordpress_database');|g 
         s|^define('NONCE_SALT',.*|define('NONCE_SALT',       '888888888888888888888888888888SaLt888888888888888888888888888888');|g ;
 		s|^\$table_prefix =.*|\$table_prefix = 'wpprefix_';|g" wordpress/wp-config.php
 echo "*** DONE Creating WordPress config file."
+echo -e "\n\n*** START Removing useless themes and plugins and installing useful ones..."
+rm -f wp-content/plugins/hello.php
+rm -rf wp-content/plugins/akismet/
+curl https://downloads.wordpress.org/plugin/askimet.latest-stable.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
+mv -f askimet/ wordpress/wp-content/plugins/
+curl https://downloads.wordpress.org/plugin/elementor.latest-stable.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
+mv -f elementor/ wordpress/wp-content/plugins/
+rm -rf wp-content/themes/twentyseventeen/
+rm -rf wp-content/themes/twentynineteen/
+curl https://downloads.wordpress.org/theme/hello-elementor.latest-stable.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
+mv -f hello-elementor/ wordpress/wp-content/themes/
+echo "*** DONE Removing useless themes and plugins and installing useful ones."
 echo -e "\n\n*** START Moving the extracted WordPress directory into the /var/www/ folder..."
 mv wordpress /var/www/mywordpress.test
 echo "*** DONE Moving the extracted WordPress directory into the /var/www/ folder."
@@ -112,7 +124,7 @@ systemctl restart httpd
 echo -e "\n\n*** DONE Restarting Apache service."
 echo -e "\n\n*** START Erasing dependencies now unnecessary..."
 dnf erase unzip  -y
-echo -e "\n\n*** Erasing dependencies now unnecessary."
+echo -e "\n\n*** DONE Erasing dependencies now unnecessary."
 echo -e "\n\n*** FINISH: you can now access WordPress installation wizard and perform the"
 echo "    actual WordPress installation. Navigate your browser to"
 echo "    http://SERVER-IP-ADDRESS/ or http://SERVER-HOST-NAME/"
