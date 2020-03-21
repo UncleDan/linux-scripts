@@ -134,6 +134,9 @@ post_max_size = 256M
 memory_limit = 512M
 max_execution_time = 180" > /etc/php.d/99-wordpress.ini 
 echo "*** DONE Adjusting PHP parameters for file uploads, memory usage and time limits for WordPress."
+echo -e "\n\n*** START Enabling PHP execution tu use Duplicator plugin..."
+setsebool -P httpd_execmem 1
+echo "*** DONE Enabling PHP execution tu use Duplicator plugin."
 echo -e "\n\n*** START Restarting PHP and Apache services..."
 systemctl restart php-fpm
 systemctl restart httpd
