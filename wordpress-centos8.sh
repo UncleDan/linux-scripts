@@ -94,8 +94,8 @@ echo "*** DONE Creating WordPress config file."
 echo -e "\n\n*** START Removing useless themes and plugins and installing useful ones..."
 rm -f wordpress/wp-content/plugins/hello.php
 rm -rf wordpress/wp-content/plugins/akismet/
-curl https://downloads.wordpress.org/plugin/askimet.latest-stable.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
-mv -f askimet/ wordpress/wp-content/plugins/
+curl https://downloads.wordpress.org/plugin/akismet.latest-stable.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
+mv -f akismet/ wordpress/wp-content/plugins/
 curl https://downloads.wordpress.org/plugin/elementor.latest-stable.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
 mv -f elementor/ wordpress/wp-content/plugins/
 curl https://downloads.wordpress.org/plugin/updraftplus.latest-stable.zip --output __TEMP__.zip && unzip -o __TEMP__.zip && rm -f __TEMP__.zip
