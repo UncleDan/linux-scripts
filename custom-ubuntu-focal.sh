@@ -11,8 +11,26 @@ sudo apt update -y
 echo ""
 echo "* apt upgrade"
 sudo apt upgrade -y
-sudo apt autoclean
+sudo apt autoremove -y
 echo ""
+echo "** Installing Google Chrome deb package..."
+echo ""
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+sudo apt install -f
+rm -rf google-chrome-stable_current_amd64.deb
+echo ""
+echo "** Installing Teamviewer deb package..."
+echo ""
+wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
+sudo dpkg -i teamviewer_amd64.deb
+sudo apt --fixbroken install -f
+rm -rf teamviewer_amd64.deb
+
+### CHECKED ABOVE ^^^ ###
+
+echo ""
+
 echo "** Install preferred packages..."
 echo ""
 echo "* apt install libreoffice firefox firefox-locale-it thunderbird thunderbird-locale-it keepassx vlc openssh-server xrdp xorgxrdp git putty wine-stable zip unzip p7zip filezilla"
@@ -36,13 +54,6 @@ echo "* apt install snapd"
 sudo apt install -y snapd
 echo "* snap install notepad-plus-plus"
 sudo snap install notepad-plus-plus
-echo ""
-echo "** Installing Google Chrome deb package..."
-echo ""
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i google-chrome-stable_current_amd64.deb
-sudo apt install -f
-rm -rf google-chrome-stable_current_amd64.deb
 echo ""
 echo "** Installing Angry IP Scanner deb package..."
 echo ""
