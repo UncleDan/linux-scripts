@@ -69,17 +69,15 @@ sudo snap install gimp
 echo "** Install Snap Notepad++"
 sudo snap install notepad-plus-plus
 echo ""
-
-
+echo "** Installing Angry IP Scanner deb package..."
+echo ""
+wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/ipscan_3.7.3_amd64.deb
+sudo apt install openjdk-14-jre openjdk-14-jre-headless ca-certificates-java java-common libatk-wrapper-java-jni fonts-dejavu-extra -y
+sudo dpkg -i ipscan_3.7.3_amd64.deb
+rm -rf ipscan_3.7.3_amd64.deb
 
 ### CHECKED ABOVE ^^^ ###
 
-echo "** Installing Angry IP Scanner deb package..."
-echo ""
-wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/ipscan_3.6.2_amd64.deb
-sudo dpkg -i ipscan_3.6.2_amd64.deb
-sudo apt install -f
-rm -rf ipscan_3.6.2_amd64.deb
 echo ""
 echo "** Installing FreeFileSync..."
 echo ""
