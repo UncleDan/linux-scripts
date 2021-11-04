@@ -60,11 +60,11 @@ flatpak install flathub org.gimp.GIMP -y
 flatpak install flathub org.libreoffice.LibreOffice -y
 flatpak install flathub us.zoom.Zoom -y
 # MEMO: check if icons appear in the menu
-# flatpak run org.mozilla.firefox
-# flatpak run org.mozilla.Thunderbird -y
-# flatpak run org.gimp.GIMP -y
-# flatpak run org.libreoffice.LibreOffice -y
-# flatpak run us.zoom.Zoom
+# flatpak run org.mozilla.firefox &
+# flatpak run org.mozilla.Thunderbird &
+# flatpak run org.gimp.GIMP &
+# flatpak run org.libreoffice.LibreOffice &
+# flatpak run us.zoom.Zoom &
 echo ""
 echo "** Install Snap Notepad++"
 sudo snap install notepad-plus-plus
