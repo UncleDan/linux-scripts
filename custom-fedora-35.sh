@@ -54,7 +54,7 @@ wget https://binaries.webex.com/WebexDesktop-CentOS-Official-Package/Webex.rpm
 sudo dnf localinstall ./Webex.rpm -y
 rm -rf ./Webex.rpm
 echo "** Installing Mozilla Thunderbird and other utilities RPM packages..."
-sudo dnf install keepassxc vlc openssh-server git putty zip unzip p7zip p7zip-plugins thunderbird -y
+sudo dnf install keepassxc openssh-server git putty zip unzip p7zip p7zip-plugins thunderbird -y
 echo ""
 echo "** Remove Libreoffice RPM packages and install Libreoffice flatpak package..."
 echo ""
