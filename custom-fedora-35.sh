@@ -67,43 +67,32 @@ echo ""
 wget https://github.com/angryip/ipscan/releases/download/3.8.2/ipscan-3.8.2-1.x86_64.rpm
 sudo dnf localinstall ./ipscan-3.8.2-1.x86_64.rpm -y
 rm -rf ./ipscan-3.8.2-1.x86_64.rpm
-
-***
-
 echo ""
 echo "** Installing pCloud AppImage..."
 echo ""
-wget https://p-lux2.pcloud.com/cBZu1eKrMZMqwjTqZZZfaPJr7Z2ZZNT0ZkZPF7pVZrHZrzZBpZpRZc5Z6pZopZ9pZApZGFZUJZkJZPpZkzZWTVkVZuTcIqtoQLr7OPrGNAbuQHueYMv7X/pcloud
+firefox --new-instance --private-window "https://www.pcloud.com/how-to-install-pcloud-drive-linux.html?download=electron-64"
+sudo rm -rf /opt/pcloud
 sudo mkdir -p /opt/pcloud
-sudo mv ./pcloud /opt/pcloud/
+sudo mv ~/Scaricati/pcloud /opt/pcloud/
 sudo chmod -R 755 /opt/pcloud
 /opt/pcloud/pcloud
-
-
-echo "** Install Snap Notepad++"
-sudo snap install notepad-plus-plus
-
-### CHECKED ABOVE ^^^ ###
-
 echo ""
 echo "** Installing FreeFileSync..."
 echo ""
-wget https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/FreeFileSync_11.10_Linux.tar.gz
-tar -xvzf FreeFileSync_11.10_Linux.tar.gz
-rm -rf FreeFileSync_11.10_Linux.tar.gz
-./FreeFileSync_11.10_Install.run
-rm -rf FreeFileSync_11.10_Install.run
+wget https://freefilesync.org/download/FreeFileSync_11.18_Linux.tar.gz
+tar -xvzf FreeFileSync_11.18_Linux.tar.gz
+rm -rf FreeFileSync_11.18_Linux.tar.gz
+./FreeFileSync_11.18_Install.run
+rm -rf FreeFileSync_11.18_Install.run
 # ^^^ Check if FreeFileSync can be completely silent
-
 echo ""
-echo "ATTENZIONE! per attivare pCloud fare doppio click sul relativo eseguibile."
-echo "Se non funziona riscaicare AppImage aggiornata da:"
-echo "https://www.pcloud.com/it/how-to-install-pcloud-drive-linux.html"
+echo "** Install wine and Notepad++"
 echo ""
-echo ""
-# ^^^ Still some problems on pcloud, it would be nice to have it completely automatic.
-
-
+sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/35/winehq.repo
+sudo dnf install winehq-stable -y
+wget https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.3.3/npp.8.3.3.Installer.x64.exe
+wine ./npp.8.3.3.Installer.x64.exe
+rm -rf ./npp.8.3.3.Installer.x64.exe
+# ^^^ Check why notepad++ runs only from console by running "wine ~/.wine/drive_c/Program\ Files/Notepad++/notepad++.exe"
 sudo dnf autoremove -y
-
 echo "DONE."
