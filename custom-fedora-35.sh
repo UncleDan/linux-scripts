@@ -62,6 +62,12 @@ sudo dnf remove libreoffice* -y
 sudo flatpak install org.libreoffice.LibreOffice -y
 flatpak run org.libreoffice.LibreOffice
 echo ""
+echo "** Installing Onlyoffice Desktop Editors RPM package..."
+echo ""
+wget https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors.x86_64.rpm
+sudo dnf localinstall ./onlyoffice-desktopeditors.x86_64.rpm -y
+rm -rf ./onlyoffice-desktopeditors.x86_64.rpm
+echo ""
 echo "** Installing Angry IP Scanner RPM package..."
 echo ""
 wget https://github.com/angryip/ipscan/releases/download/3.8.2/ipscan-3.8.2-1.x86_64.rpm
