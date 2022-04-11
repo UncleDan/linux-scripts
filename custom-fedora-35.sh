@@ -56,11 +56,19 @@ rm -rf ./Webex.rpm
 echo "** Installing Mozilla Thunderbird and other utilities RPM packages..."
 sudo dnf install keepassxc openssh-server git putty zip unzip p7zip p7zip-plugins thunderbird -y
 echo ""
-echo "** Remove Libreoffice RPM packages and install Libreoffice flatpak package..."
+echo "** Remove Libreoffice RPM old packages and install Libreoffice RPM latest packages package..."
 echo ""
 sudo dnf remove libreoffice* -y
-sudo flatpak install org.libreoffice.LibreOffice -y
-flatpak run org.libreoffice.LibreOffice
+wget https://libreoffice.mirror.garr.it/libreoffice/stable/7.3.2/rpm/x86_64/LibreOffice_7.3.2_Linux_x86-64_rpm.tar.gz
+tar -xvzf ./LibreOffice_7.3.2_Linux_x86-64_rpm.tar.gz
+rm -rf LibreOffice_7.3.2_Linux_x86-64_rpm.tar.gz
+sudo dnf localinstall ./LibreOffice_7.3.2.2_Linux_x86-64_rpm/RPMS/*.rpm -y
+rm -rf ./LibreOffice_7.3.2.2_Linux_x86-64_rpm/
+wget https://libreoffice.mirror.garr.it/libreoffice/stable/7.3.2/rpm/x86_64/LibreOffice_7.3.2_Linux_x86-64_rpm_langpack_it.tar.gz
+tar -xvzf ./LibreOffice_7.3.2_Linux_x86-64_rpm_langpack_it.tar.gz
+rm -rf LibreOffice_7.3.2_Linux_x86-64_rpm_langpack_it.tar.gz
+sudo dnf localinstall ./LibreOffice_7.3.2.2_Linux_x86-64_rpm_langpack_it/RPMS/*.rpm -y
+rm -rf ./LibreOffice_7.3.2.2_Linux_x86-64_rpm_langpack_it/
 echo ""
 echo "** Installing Onlyoffice Desktop Editors RPM package..."
 echo ""
