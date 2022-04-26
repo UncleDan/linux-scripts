@@ -34,6 +34,11 @@ echo "** INTERNET: Installing and/or localizing Thunderbird DEB package..."
 echo ""
 sudo apt install thunderbird thunderbird-locale-it -y
 echo ""
+echo "** INTERNET: Installing TOR Browser TXZ package in user home folder..."
+echo ""
+curl -L https://www.torproject.org/dist/torbrowser/11.0.10/tor-browser-linux64-11.0.10_it.tar.xz -o $tmp_dir/tor-browser.txz
+tar -xvf $tmp_dir/tor-browser.txz -C ~
+echo ""
 echo "** INTERNET: Installing Zoom DEB package..."
 echo ""
 curl -L https://zoom.us/client/latest/zoom_amd64.deb -o $tmp_dir/zoom.deb
