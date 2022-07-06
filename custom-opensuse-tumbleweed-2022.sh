@@ -116,7 +116,33 @@ sudo zypper refresh
 sudo zypper -n dist-upgrade --from packman --allow-vendor-change
 sudo zypper -n install --from packman ffmpeg gstreamer-plugins-{good,bad,ugly,libav} libavcodec-full vlc-codecs vlc
 echo ""
-echo "** OBS flatpak package..."
+echo "** Installing \"Studio\" features..."
+echo ""
+echo "* AUDIO: JACK, CARLA, Audacity, Qtractor, Hudrogen RPM packages..."
+echo ""
+sudo zypper -n install jack carla audacity qtractor hydrogen
+echo ""
+echo "* AUDIO: Ardour flatpak package..."
+echo ""
+sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+sudo flatpak install flathub org.ardour.Ardour -y
+### Missing Yoshimi https://yoshimi.github.io/
+echo ""
+echo "* GRAPHICS: Blender, Inkscape, GIMP RPM packages..."
+echo ""
+sudo zypper -n install blender inkscape gimp
+### Missing Pixopixel http://twilightedge.com/mac/pikopixel/
+echo ""
+echo "* PHOTOGRAPY: Darktable, Shotwell flatpak packages..."
+echo ""
+sudo flatpak install flathub org.darktable.Darktable -y
+sudo flatpak install flathub org.gnome.Shotwell -y
+echo ""
+echo "* VIDEO: Openshot, Ffmpeg, Kdenlive(*) RPM packages..."
+echo ""
+sudo zypper -n install openshot ffmpeg kdenlive
+echo ""
+echo "* VIDEO: OBS(*) flatpak package..."
 echo ""
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 sudo flatpak install flathub com.obsproject.Studio -y
