@@ -52,10 +52,14 @@ sudo zypper -n install keepassxc putty zip
 # sudo dnf localinstall ./LibreOffice_7.3.2.2_Linux_x86-64_rpm_langpack_it/RPMS/*.rpm -y
 # rm -rf ./LibreOffice_7.3.2.2_Linux_x86-64_rpm_langpack_it/
 echo ""
-echo "** Installing Onlyoffice Desktop Editors flatpak package..." ### OpenSUS is not mentioned for RPM compatibility
+echo "** Installing Onlyoffice Desktop Editors flatpak package..." ## openSUSE is not mentioned for RPM compatibility
 echo ""
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 sudo flatpak install flathub org.onlyoffice.desktopeditors -y
+echo ""
+echo "** Installing Microsoft fonts RPM helper package..."
+echo ""
+sudo zypper -n install fetchmsttfonts
 echo ""
 echo "** Installing The GIMP RPM package..."
 echo ""
