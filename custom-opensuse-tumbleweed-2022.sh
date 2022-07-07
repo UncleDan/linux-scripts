@@ -75,7 +75,7 @@ echo "** Installing Webex RPM package..."
 curl -L https://binaries.webex.com/WebexDesktop-CentOS-Official-Package/Webex.rpm -o $tmp_dir/Webex.rpm
 sudo rpm --import https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/webex_public.key
 echo ""
-echo "Se viene segnalato un errore, scegliere di continuare ignorando le dipendenze (a tuo rischio e pericolo)..." ## controllare se si può fare meglio
+echo "If an error is reported, choose to continue ignoring the dependencies (at your own risk)..." ## check if you can do better
 echo ""
 sudo zypper install $tmp_dir/Webex.rpm
 echo ""
@@ -92,7 +92,7 @@ echo "** Installing Angry IP Scanner RPM package..."
 echo ""
 curl -L https://github.com/angryip/ipscan/releases/download/3.8.2/ipscan-3.8.2-1.x86_64.rpm -o $tmp_dir/ipscan-3.8.2-1.x86_64.rpm
 echo ""
-echo "Se viene segnalato un errore, scegliere di continuare ignorando la firma (a tuo rischio e pericolo)..." ## controllare se si può fare meglio
+echo "If an error is reported, choose to continue ignoring the signature (at your own risk)..." ## check if you can do better
 echo ""
 sudo zypper install $tmp_dir/ipscan-3.8.2-1.x86_64.rpm
 echo ""
@@ -100,8 +100,7 @@ echo "** Installing FreeFileSync..."
 echo ""
 curl -L https://freefilesync.org/download/FreeFileSync_11.22_Linux.tar.gz -o $tmp_dir/FreeFileSync_11.22_Linux.tar.gz
 tar -xvzf $tmp_dir/FreeFileSync_11.22_Linux.tar.gz -C $tmp_dir/
-$tmp_dir/FreeFileSync_11.22_Install.run
-# ^^^ Check if FreeFileSync can be completely silent
+$tmp_dir/FreeFileSync_11.22_Install.run ## Check if FreeFileSync can be completely silent
 echo ""
 echo "** Install wine and Notepad++"
 echo ""
@@ -131,7 +130,7 @@ echo "** Installing Yoshimi RPM package from repo..."
 echo ""
 sudo zypper addrepo https://download.opensuse.org/repositories/multimedia:proaudio/openSUSE_Tumbleweed/multimedia:proaudio.repo
 echo ""
-echo "Chiave ufficiale non disponibile: per continuare scegliere chiave sempre attendibile (a tuo rischio e pericolo)"
+echo "Official key not available: to continue choose always trusted key (at your own risk)" ## check if you can do better
 echo ""
 sudo zypper -n refresh
 sudo zypper -n install yoshimi
@@ -155,5 +154,7 @@ echo ""
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 sudo flatpak install flathub com.obsproject.Studio -y
 ### not necessary anymore: flatpak run com.obsproject.Studio
+echo ""
+echo "If you want you can set KDE theme to \"Breeze Dark\" (Brezza scuro) and style to \"Oxygen\" (Oxygen) and move the dock to the top side.
 echo ""
 echo "DONE."
