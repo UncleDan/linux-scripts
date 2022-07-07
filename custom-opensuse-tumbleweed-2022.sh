@@ -74,12 +74,20 @@ echo ""
 echo "** Installing Microsoft fonts RPM helper package..."
 echo ""
 sudo zypper -n install fetchmsttfonts
+### GIMP added in the grapghics section
+# echo ""
+# echo "** Installing The GIMP RPM package..."
+# echo ""
+# sudo zypper -n install gimp
 echo ""
-echo "** Installing The GIMP RPM package..."
+echo "** Installing codecs and VLC (if not installed) RPM packages..."
 echo ""
-sudo zypper -n install gimp
+sudo zypper --gpg-auto-import-keys addrepo -cfp 90 'https://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/' packman ### check if key gets imported
+sudo zypper refresh
+sudo zypper -n dist-upgrade --from packman --allow-vendor-change
+sudo zypper -n install --from packman ffmpeg gstreamer-plugins-{good,bad,ugly,libav} libavcodec-full vlc-codecs vlc
 echo ""
-echo "** Installing Avidemux RPM package..."
+echo "** Installing Avidemux RPM package from repo..."
 echo ""
 sudo zypper -n install avidemux3-qt5
 echo ""
@@ -118,8 +126,8 @@ echo "** Installing FreeFileSync..."
 echo ""
 curl -L https://freefilesync.org/download/FreeFileSync_11.22_Linux.tar.gz -o $tmp_dir/FreeFileSync_11.22_Linux.tar.gz
 tar -xvzf $tmp_dir/FreeFileSync_11.22_Linux.tar.gz -C $tmp_dir/
-$tmp_dir/FreeFileSync_11.22_Install.run ## Check if FreeFileSync can be completely silent
-echo ""
+$tmp_dir/FreeFileSync_11.22_Install.run
+### ^^^ Check if FreeFileSync can be completely silentecho ""
 echo "** Installing wine and Notepad++"
 echo ""
 sudo zypper -n install wine
@@ -133,18 +141,11 @@ sudo gpasswd -a $USER vboxusers
 echo ""
 echo "A reboot might be required before Virtualbox first launche."
 echo ""
-echo "** Installing codecs and VLC (if not installed) RPM packages..."
-echo ""
-sudo zypper --gpg-auto-import-keys addrepo -cfp 90 'https://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/' packman ### check if key gets imported
-sudo zypper refresh
-sudo zypper -n dist-upgrade --from packman --allow-vendor-change
-sudo zypper -n install --from packman ffmpeg gstreamer-plugins-{good,bad,ugly,libav} libavcodec-full vlc-codecs vlc
-echo ""
 echo "** Installing \"Studio\" features..."
 echo ""
 echo "* AUDIO: JACK, CARLA, Audacity, Qtractor, Hydrogen RPM packages..."
 echo ""
-sudo zypper -n install jack carla audacity qtractor hydrogen
+sudo zypper -n install jack carla audacity qtractor hydrogen carla-vst
 echo ""
 echo "* AUDIO: Ardour flatpak package..."
 echo ""
@@ -157,7 +158,7 @@ sudo zypper addrepo https://download.opensuse.org/repositories/multimedia:proaud
 echo ""
 echo "Official key not available: to continue choose always trusted key (at your own risk)" ## check if you can do better
 echo ""
-sudo zypper -n refresh
+sudo zypper refresh
 sudo zypper -n install yoshimi
 echo ""
 echo "* GRAPHICS: Blender, Inkscape, GIMP RPM packages..."
@@ -180,6 +181,6 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 sudo flatpak install flathub com.obsproject.Studio -y
 ### not necessary anymore: flatpak run com.obsproject.Studio
 echo ""
-echo "If you want you can set KDE theme to \"Breeze Dark\" (Brezza scuro) and style to \"Oxygen\" (Oxygen) and move the dock to the top side.
+echo "If you want you can set KDE theme to \"Breeze Dark\" (Brezza scuro) and style to \"Oxygen\" (Oxygen) and move the dock to the top side."
 echo ""
 echo "DONE."
