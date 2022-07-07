@@ -106,11 +106,18 @@ curl -L https://freefilesync.org/download/FreeFileSync_11.22_Linux.tar.gz -o $tm
 tar -xvzf $tmp_dir/FreeFileSync_11.22_Linux.tar.gz -C $tmp_dir/
 $tmp_dir/FreeFileSync_11.22_Install.run ## Check if FreeFileSync can be completely silent
 echo ""
-echo "** Install wine and Notepad++"
+echo "** Installing wine and Notepad++"
 echo ""
 sudo zypper -n install wine
 curl -L https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.4.2/npp.8.4.2.Installer.x64.exe -o $tmp_dir/npp.8.4.2.Installer.x64.exe
 wine $tmp_dir/npp.8.4.2.Installer.x64.exe
+echo ""
+echo "** Installing Oracle Virtualbox"
+echo ""
+sudo zypper -n install virtualbox
+sudo gpasswd -a $USER vboxusers
+echo ""
+echo "A reboot might be required before Virtualbox first launche."
 echo ""
 echo "** Installing codecs and VLC (if not installed) RPM packages..."
 echo ""
