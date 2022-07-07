@@ -15,8 +15,8 @@ sudo zypper -n install google-chrome-stable
 echo ""
 echo "** Installing Teamviewer RPM package..."
 echo ""
-sudo rpm --import https://download.teamviewer.com/download/linux/signature/TeamViewer2017.asc
 curl -L https://download.teamviewer.com/download/linux/teamviewer-suse.x86_64.rpm -o $tmp_dir/teamviewer-suse.x86_64.rpm
+sudo rpm --import https://download.teamviewer.com/download/linux/signature/TeamViewer2017.asc
 sudo zypper -n install $tmp_dir/teamviewer-suse.x86_64.rpm
 sudo zypper -n refresh
 echo ""
@@ -24,10 +24,10 @@ echo "** Installing KDE Partition Manager RPM package..."
 echo ""
 sudo zypper -n install partitionmanager
 echo ""
-echo "** Installing Visual Studio Code RPM package..."
+echo "** Installing Visual Studio Code RPM package from repo..."
 echo ""
-sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 sudo zypper addrepo https://packages.microsoft.com/yumrepos/vscode vscode
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 sudo zypper -n refresh
 sudo zypper -n install code
 echo ""
@@ -75,7 +75,7 @@ echo "** Installing Webex RPM package..."
 curl -L https://binaries.webex.com/WebexDesktop-CentOS-Official-Package/Webex.rpm -o $tmp_dir/Webex.rpm
 sudo rpm --import https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/webex_public.key
 echo ""
-echo "Se viene segnalato un errore, scegliere di continuare ignorando le dipendenze..." ## controllare se si può fare meglio
+echo "Se viene segnalato un errore, scegliere di continuare ignorando le dipendenze (a tuo rischio e pericolo)..." ## controllare se si può fare meglio
 echo ""
 sudo zypper install $tmp_dir/Webex.rpm
 echo ""
@@ -118,7 +118,7 @@ sudo zypper -n install --from packman ffmpeg gstreamer-plugins-{good,bad,ugly,li
 echo ""
 echo "** Installing \"Studio\" features..."
 echo ""
-echo "* AUDIO: JACK, CARLA, Audacity, Qtractor, Hudrogen RPM packages..."
+echo "* AUDIO: JACK, CARLA, Audacity, Qtractor, Hydrogen RPM packages..."
 echo ""
 sudo zypper -n install jack carla audacity qtractor hydrogen
 echo ""
@@ -126,7 +126,15 @@ echo "* AUDIO: Ardour flatpak package..."
 echo ""
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 sudo flatpak install flathub org.ardour.Ardour -y
-### Missing Yoshimi https://yoshimi.github.io/
+echo ""
+echo "** Installing Yoshimi RPM package from repo..."
+echo ""
+sudo zypper addrepo https://download.opensuse.org/repositories/multimedia:proaudio/openSUSE_Tumbleweed/multimedia:proaudio.repo
+echo ""
+echo "Chiave ufficiale non disponibile: per continuare scegliere chiave sempre attendibile (a tuo rischio e pericolo)"
+echo ""
+sudo zypper -n refresh
+sudo zypper -n install yoshimi
 echo ""
 echo "* GRAPHICS: Blender, Inkscape, GIMP RPM packages..."
 echo ""
