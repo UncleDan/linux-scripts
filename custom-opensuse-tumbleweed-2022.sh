@@ -20,6 +20,20 @@ sudo rpm --import https://download.teamviewer.com/download/linux/signature/TeamV
 sudo zypper -n install $tmp_dir/teamviewer-suse.x86_64.rpm
 sudo zypper -n refresh
 echo ""
+echo "** Installing Anydesk RPM package from repo..."
+echo ""
+cat > $tmp_dir/AnyDesk-OpenSUSE.repo << "EOF" 
+[anydesk]
+name=AnyDesk OpenSUSE - stable
+baseurl=http://rpm.anydesk.com/opensuse/$basearch/
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://keys.anydesk.com/repos/RPM-GPG-KEY
+EOF
+sudo zypper addrepo --repo $tmp_dir/AnyDesk-OpenSUSE.repo ## test if it works with file in temporary folder
+sudo rpm --import https://keys.anydesk.com/repos/RPM-GPG-KEY
+sudo zypper -n install anydesk
+echo ""
 echo "** Installing KDE Partition Manager RPM package..."
 echo ""
 sudo zypper -n install partitionmanager
