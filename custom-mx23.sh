@@ -4,7 +4,7 @@ IPSCAN_VERSION="3.9.1"
 STRETCHLY_VERSION="1.14.1"
 VEEAM_VERSION="1.0.8"
 
-TMP_DIR=$(mktemp -d -t cl-$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)
+TMP_DIR=$(mktemp -d -t cl-$(date +%Y%m%d-%H%M%S)-XXXXXX)
 
 sudo echo "***** CUSTOMIZING... *****"
 echo ""
@@ -88,6 +88,9 @@ wget -O $TMP_DIR/freefilesync.tar.gz "https://freefilesync.org/download/FreeFile
 tar -xvzf $TMP_DIR/freefilesync.tar.gz -C $TMP_DIR
 sudo $TMP_DIR/FreeFileSync_${FREEFILESYNC_VERSION}_Install.run
 # ^^^ Check if FreeFileSync can be completely silent
+rm -f ~/Scrivania/FreeFileSync.desktop
+rm -f ~/Scrivania/RealTimeSync.desktop
+# ^^^ remove icons on desktop if createf by chance
 
 ### echo ""
 ### echo "Installing pCloud AppImage package, close Firefox when download is finished..."
