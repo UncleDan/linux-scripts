@@ -1,6 +1,7 @@
 #!/bin/bash
 FREEFILESYNC_VERSION="12.5"
 IPSCAN_VERSION="3.9.1"
+STRETCHLY_VERSION="1.14.1"
 VEEAM_VERSION="1.0.8"
 
 TMP_DIR=$(mktemp -d -t cl-$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)
@@ -49,11 +50,12 @@ sudo apt upgrade -y
 echo ""
 echo "Downloading DEB additional packages..."
 echo ""
-wget -O $TMP_DIR/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
-wget -O $TMP_DIR/webex.deb https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/Webex.deb
-wget -O $TMP_DIR/onlyoffice.deb https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
 wget -O $TMP_DIR/ipscan.deb https://github.com/angryip/ipscan/releases/download/${IPSCAN_VERSION}/ipscan_${IPSCAN_VERSION}_amd64.deb
+wget -O $TMP_DIR/onlyoffice.deb https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
+wget -O $TMP_DIR/stretchly.deb https://github.com/hovancik/stretchly/releases/download/v${STRETCHLY_VERSION}/Stretchly_${STRETCHLY_VERSION}_amd64.deb
 wget -O $TMP_DIR/veeam.deb https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/veeam-release-deb_${VEEAM_VERSION}_amd64.deb
+wget -O $TMP_DIR/webex.deb https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/Webex.deb
+wget -O $TMP_DIR/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
 
 echo " Installing DEB packages..."
 echo ""
@@ -63,10 +65,11 @@ sudo apt install -y \
  virtualbox \
  teamviewer \
  code \
- $TMP_DIR/zoom.deb \
- $TMP_DIR/webex.deb \
- $TMP_DIR/onlyoffice.deb \
  $TMP_DIR/ipscan.deb \
+ $TMP_DIR/onlyoffice.deb \
+ $TMP_DIR/stretchly.deb \
+ $TMP_DIR/webex.deb \
+ $TMP_DIR/zoom.deb \
  avidemux \
  filezilla \
  keepassxc \
