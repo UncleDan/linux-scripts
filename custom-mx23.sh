@@ -53,7 +53,8 @@ echo ""
 wget -O $TMP_DIR/ipscan.deb https://github.com/angryip/ipscan/releases/download/${IPSCAN_VERSION}/ipscan_${IPSCAN_VERSION}_amd64.deb
 wget -O $TMP_DIR/onlyoffice.deb https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
 wget -O $TMP_DIR/stretchly.deb https://github.com/hovancik/stretchly/releases/download/v${STRETCHLY_VERSION}/Stretchly_${STRETCHLY_VERSION}_amd64.deb
-wget -O $TMP_DIR/veeam.deb https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/veeam-release-deb_${VEEAM_VERSION}_amd64.deb
+wget -O $TMP_DIR/veeam-repo.deb https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/veeam-release-deb_${VEEAM_VERSION}_amd64.deb
+sudo dpkg -i $TMP_DIR/veeam-repo.deb
 wget -O $TMP_DIR/webex.deb https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/Webex.deb
 wget -O $TMP_DIR/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
 
@@ -68,6 +69,7 @@ sudo apt install -y \
  $TMP_DIR/ipscan.deb \
  $TMP_DIR/onlyoffice.deb \
  $TMP_DIR/stretchly.deb \
+ veeam blksnap \
  $TMP_DIR/webex.deb \
  $TMP_DIR/zoom.deb \
  avidemux \
@@ -79,8 +81,6 @@ sudo apt install -y \
  p7zip-full \
  zip unzip
 
-# apt install -y $TMP_DIR/veeam.deb ### something wrong...
- 
 echo ""
 echo "** Installing FreeFileSync TGZ package..."
 echo ""
