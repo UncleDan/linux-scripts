@@ -92,21 +92,21 @@ rm -f ~/Scrivania/FreeFileSync.desktop
 rm -f ~/Scrivania/RealTimeSync.desktop
 # ^^^ remove icons on desktop if createf by chance
 
-### echo ""
-### echo "Installing pCloud AppImage package, close Firefox when download is finished..."
-### echo ""
-### pkill -e -f firefox
-### firefox --new-instance --private-window "https://www.pcloud.com/how-to-install-pcloud-drive-linux.html?download=electron-64"
-### pkill -e -f pcloud
-### sudo rm -rf /opt/pcloud
-### sudo mkdir -p /opt/pcloud
-### sudo mv ~/Scaricati/pcloud /opt/pcloud/
-### sudo chown -R root:root /opt/pcloud
-### sudo chmod -R 755 /opt/pcloud
+echo ""
+echo "Installing pCloud AppImage package, close Firefox when download is finished..."
+echo ""
+pkill -e -f firefox
+firefox --new-instance --private-window "https://www.pcloud.com/how-to-install-pcloud-drive-linux.html?download=electron-64"
+pkill -e -f pcloud
+sudo rm -rf /usr/bin/pcloud
+sudo mv ~/Scaricati/pcloud /usr/bin/pcloud
+sudo chown root:root /usr/bin/pcloud
+sudo chmod 755 /usr/bin/pcloud
 ### Suggested from pCloud site but maybe unnecessary on Ubuntu Studio
 ### sudo add-apt-repository -y universe
 ### sudo apt install libfuse2
-/opt/pcloud/pcloud
+echo "Launching pCloud to create menu, close with Ctrl+C to continue..."
+/usr/bin/pcloud
 
 
 ### ----------------------------------------------------------------------
