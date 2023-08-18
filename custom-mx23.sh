@@ -73,6 +73,7 @@ sudo apt install -y \
  $TMP_DIR/webex.deb \
  $TMP_DIR/zoom.deb \
  avidemux \
+ audacity \
  filezilla \
  keepassxc \
  libreoffice-l10n-it hyphen-it mythes-it libreoffice-help-it hunspell hunspell-it \
