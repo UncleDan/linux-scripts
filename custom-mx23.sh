@@ -75,10 +75,12 @@ sudo apt install -y \
  avidemux \
  filezilla \
  keepassxc \
+ libreoffice-l10n-it hyphen-it mythes-it libreoffice-help-it hunspell hunspell-it \
  obs-studio \
  openssh-server \
  putty putty-doc \
  p7zip-full \
+ thunderbird-l10n-it \
  zip unzip
 
 echo ""
