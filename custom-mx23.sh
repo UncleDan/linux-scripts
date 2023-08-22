@@ -3,6 +3,7 @@ FREEFILESYNC_VERSION="12.5"
 IPSCAN_VERSION="3.9.1"
 STRETCHLY_VERSION="1.14.1"
 VEEAM_VERSION="1.0.8"
+TORBROWSER_VERSION="12.5.2"
 
 TMP_DIR=$(mktemp -d -t cl-$(date +%Y%m%d-%H%M%S)-XXXXXX)
 
@@ -61,17 +62,6 @@ wget -O $TMP_DIR/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
 echo " Installing DEB packages..."
 echo ""
 sudo apt install -y \
- anydesk \
- google-chrome-stable \
- virtualbox \
- teamviewer \
- code \
- $TMP_DIR/ipscan.deb \
- $TMP_DIR/onlyoffice.deb \
- $TMP_DIR/stretchly.deb \
- veeam blksnap \
- $TMP_DIR/webex.deb \
- $TMP_DIR/zoom.deb \
  avidemux \
  audacity \
  filezilla \
@@ -82,7 +72,19 @@ sudo apt install -y \
  putty putty-doc \
  p7zip-full \
  thunderbird-l10n-it \
- zip unzip
+ wine winehq-staging:i386 \
+ zip unzip \
+ anydesk \
+ google-chrome-stable \
+ virtualbox \
+ teamviewer \
+ code \
+ $TMP_DIR/ipscan.deb \
+ $TMP_DIR/onlyoffice.deb \
+ $TMP_DIR/stretchly.deb \
+ veeam blksnap \
+ $TMP_DIR/webex.deb \
+ $TMP_DIR/zoom.deb
 
 echo ""
 echo "** Installing FreeFileSync TGZ package..."
@@ -100,8 +102,7 @@ echo "Installing pCloud AppImage package, close Firefox when download is finishe
 echo ""
 pkill -e -f firefox
 firefox --new-instance --private-window "https://www.pcloud.com/how-to-install-pcloud-drive-linux.html?download=electron-64"
-pkill -e -f pcloud
-sudo rm -rf /usr/bin/pcloud
+pkill -e -f pcloud ; sudo rm -rf /usr/bin/pcloud
 sudo mv ~/Scaricati/pcloud /usr/bin/pcloud
 sudo chown root:root /usr/bin/pcloud
 sudo chmod 755 /usr/bin/pcloud
@@ -111,6 +112,38 @@ sudo chmod 755 /usr/bin/pcloud
 echo "Launching pCloud to create menu, close with Ctrl+C to continue..."
 /usr/bin/pcloud
 
+echo ""
+echo "Installing TOR Browser TXZ package..."
+echo ""
+wget -O $TMP_DIR/tor-browser.tar.xz https://www.torproject.org/dist/torbrowser/${TORBROWSER_VERSION}/tor-browser-linux64-${TORBROWSER_VERSION}_ALL.tar.xz
+tar -xvf $TMP_DIR/tor-browser.tar.xz -C ~
+chmod +x ~/tor-browser/start-tor-browser.desktop
+cd ~/tor-browser/ ; ./start-tor-browser.desktop --register-app ; cd ~
+
+echo ""
+echo "Installing Supremo to be run with wine in home folder, close Firefox when download is finished..."
+echo ""
+pkill -e -f firefox ; firefox --new-instance --private-window "https://www.supremocontrol.com/it/supremo-download/?autoDownload=1"
+7z x mv ~/Scaricati/Supremo.exe .rsrc/1033/ICON/3.ico -o$TMP_DIR
+mv $TMP_DIR/.rsrc/1033/ICON/3.ico  /home/uncledan/.local/share/icons/Supremo.ico
+mkdir -p .wine/drive_c/'Program Files (x86)'/Supremo
+mv ~/Scaricati/Supremo.exe /home/uncledan/.wine/drive_c/'Program Files (x86)'/Supremo/Supremo.exe
+cat <<EOF > /home/uncledan/.local/share/applications/Supremo.desktop
+[Desktop Entry]
+Comment=
+Exec=env WINEPREFIX=/home/uncledan/.wine /opt/wine-staging/bin/wine '/home/uncledan/.wine/drive_c/Program Files (x86)/Supremo/Supremo.exe'
+GenericName=Supremo Remote Control
+Icon=/home/uncledan/.local/share/icons/Supremo.ico
+Name=Supremo
+NoDisplay=false
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=
+EOF
 
 ### ----------------------------------------------------------------------
 ### THE END
