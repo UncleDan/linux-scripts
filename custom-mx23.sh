@@ -113,6 +113,19 @@ echo "Launching pCloud to create menu, close with Ctrl+C to continue..."
 /usr/bin/pcloud
 
 echo ""
+echo "Installing Olive Video Editor AppImage package, click on the download for Linux icon and close Firefox when download is finished..."
+echo ""
+pkill -e -f firefox ; firefox --new-instance --private-window "https://www.olivevideoeditor.org/download"
+pkill -e -f pcloud ; sudo rm -rf /usr/bin/pcloud
+mv ~/Scaricati/Olive-*.zip $TMP_DIR/Olive.zip
+7z e $TMP_DIR/Olive.zip -o$TMP_DIR
+sudo mv $TMP_DIR/Olive-*.AppImage /usr/bin/Olive
+sudo chown root:root /usr/bin/Olive ; sudo chmod 755 /usr/bin/Olive
+echo "Launching Olive to create menu, close with Ctrl+C to continue..."
+/usr/bin/Olive
+### ^^^ find how to add .desktop
+
+echo ""
 echo "Installing TOR Browser TXZ package..."
 echo ""
 wget -O $TMP_DIR/tor-browser.tar.xz https://www.torproject.org/dist/torbrowser/${TORBROWSER_VERSION}/tor-browser-linux64-${TORBROWSER_VERSION}_ALL.tar.xz
