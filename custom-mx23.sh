@@ -116,14 +116,11 @@ echo ""
 echo "Installing Olive Video Editor AppImage package, click on the download for Linux icon and close Firefox when download is finished..."
 echo ""
 pkill -e -f firefox ; firefox --new-instance --private-window "https://www.olivevideoeditor.org/download"
-pkill -e -f pcloud ; sudo rm -rf /usr/bin/pcloud
 mv ~/Scaricati/Olive-*.zip $TMP_DIR/Olive.zip
 7z e $TMP_DIR/Olive.zip -o$TMP_DIR
-sudo mv $TMP_DIR/Olive-*.AppImage /usr/bin/Olive
-sudo chown root:root /usr/bin/Olive ; sudo chmod 755 /usr/bin/Olive
-echo "Launching Olive to create menu, close with Ctrl+C to continue..."
-/usr/bin/Olive
-### ^^^ find how to add .desktop
+sudo mv $TMP_DIR/Olive-*.AppImage /usr/bin/olive-editor
+sudo chown root:root /usr/bin/olive-editor ; sudo chmod 755 /usr/bin/olive-editor
+sudo 7z e /usr/bin/olive-editor org.olivevideoeditor.Olive.desktop -o/usr/share/applications/
 
 echo ""
 echo "Installing TOR Browser TXZ package..."
