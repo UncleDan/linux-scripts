@@ -13,7 +13,7 @@ echo ""
 echo "** Set RTC time to avoid problems in dual boot..."
 echo ""
 sudo timedatectl set-local-rtc 1 --adjust-system-clock
-
+# ^^^ MX23 has no systemctl, find the alternative!
 
 echo ""
 echo "** Add Anydesk repository and key..."
