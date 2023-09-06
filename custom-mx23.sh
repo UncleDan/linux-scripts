@@ -3,7 +3,7 @@ FREEFILESYNC_VERSION="12.5"
 IPSCAN_VERSION="3.9.1"
 STRETCHLY_VERSION="1.14.1"
 VEEAM_VERSION="1.0.8"
-TORBROWSER_VERSION="12.5.2"
+TORBROWSER_VERSION="12.5.3"
 
 TMP_DIR=$(mktemp -d -t cl-$(date +%Y%m%d-%H%M%S)-XXXXXX)
 
@@ -54,17 +54,16 @@ echo ""
 wget -O $TMP_DIR/ipscan.deb https://github.com/angryip/ipscan/releases/download/${IPSCAN_VERSION}/ipscan_${IPSCAN_VERSION}_amd64.deb
 wget -O $TMP_DIR/onlyoffice.deb https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
 wget -O $TMP_DIR/stretchly.deb https://github.com/hovancik/stretchly/releases/download/v${STRETCHLY_VERSION}/Stretchly_${STRETCHLY_VERSION}_amd64.deb
-wget -O $TMP_DIR/veeam-repo.deb https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/veeam-release-deb_${VEEAM_VERSION}_amd64.deb
-sudo dpkg -i $TMP_DIR/veeam-repo.deb
 wget -O $TMP_DIR/webex.deb https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/Webex.deb
 wget -O $TMP_DIR/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
 
-echo " Installing DEB packages..."
+echo " Installing from repositories..."
 echo ""
 sudo apt install -y \
  avidemux \
  audacity \
  filezilla \
+ kdenlive \
  keepassxc \
  libreoffice-l10n-it hyphen-it mythes-it libreoffice-help-it hunspell hunspell-it \
  obs-studio \
@@ -78,13 +77,22 @@ sudo apt install -y \
  google-chrome-stable \
  virtualbox \
  teamviewer \
- code \
+ code
+
+echo " Installing DEB packages..."
+echo ""
+sudo apt install -y \
  $TMP_DIR/ipscan.deb \
  $TMP_DIR/onlyoffice.deb \
  $TMP_DIR/stretchly.deb \
- veeam blksnap \
  $TMP_DIR/webex.deb \
  $TMP_DIR/zoom.deb
+
+echo " Installing VEEAM packages..."
+echo ""
+wget -O $TMP_DIR/veeam-repo.deb https://filedn.com/lAHAHtmqjaTjJxFAtUSMfN8/files/archive/Software/Linux/veeam-release-deb_${VEEAM_VERSION}_amd64.deb
+sudo dpkg -i $TMP_DIR/veeam-repo.deb
+sudo apt update ; sudo apt install -y veeam blksnap
 
 echo ""
 echo "** Installing FreeFileSync TGZ package..."
@@ -93,8 +101,7 @@ wget -O $TMP_DIR/freefilesync.tar.gz "https://freefilesync.org/download/FreeFile
 tar -xvzf $TMP_DIR/freefilesync.tar.gz -C $TMP_DIR
 sudo $TMP_DIR/FreeFileSync_${FREEFILESYNC_VERSION}_Install.run
 # ^^^ Check if FreeFileSync can be completely silent
-rm -f ~/Scrivania/FreeFileSync.desktop
-rm -f ~/Scrivania/RealTimeSync.desktop
+rm -f ~/Scrivania/{FreeFileSync,RealTimeSync}.desktop
 # ^^^ remove icons on desktop if createf by chance
 
 echo ""
@@ -106,7 +113,7 @@ pkill -e -f pcloud ; sudo rm -rf /usr/bin/pcloud
 sudo mv ~/Scaricati/pcloud /usr/bin/pcloud
 sudo chown root:root /usr/bin/pcloud
 sudo chmod 755 /usr/bin/pcloud
-### Suggested from pCloud site but maybe unnecessary on Ubuntu Studio
+### Suggested from pCloud site but maybe unnecessary on Ubuntu Studio and MX23
 ### sudo add-apt-repository -y universe
 ### sudo apt install libfuse2
 echo "Launching pCloud to create menu, close with Ctrl+C to continue..."
@@ -125,10 +132,9 @@ sudo 7z e /usr/bin/olive-editor org.olivevideoeditor.Olive.desktop -o/usr/share/
 echo ""
 echo "Installing TOR Browser TXZ package..."
 echo ""
-wget -O $TMP_DIR/tor-browser.tar.xz https://www.torproject.org/dist/torbrowser/${TORBROWSER_VERSION}/tor-browser-linux64-${TORBROWSER_VERSION}_ALL.tar.xz
+wget -O $TMP_DIR/tor-browser.tar.xz https://archive.torproject.org/tor-package-archive/torbrowser/${TORBROWSER_VERSION}/tor-browser-linux64-${TORBROWSER_VERSION}_ALL.tar.xz
 tar -xvf $TMP_DIR/tor-browser.tar.xz -C ~
-chmod +x ~/tor-browser/start-tor-browser.desktop
-cd ~/tor-browser/ ; ./start-tor-browser.desktop --register-app ; cd ~
+chmod +x ~/tor-browser/start-tor-browser.desktop ; cd ~/tor-browser/ ; ./start-tor-browser.desktop --register-app ; cd ~
 
 echo ""
 echo "Installing Supremo to be run with wine in home folder, close Firefox when download is finished..."
