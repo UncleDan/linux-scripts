@@ -72,7 +72,7 @@ sudo apt install -y \
  putty putty-doc \
  p7zip-full \
  thunderbird-l10n-it \
- wine winehq-staging:i386 \
+ winehq-staging:i386 \
  zip unzip \
  anydesk \
  google-chrome-stable \
@@ -134,8 +134,8 @@ echo ""
 echo "Installing Supremo to be run with wine in home folder, close Firefox when download is finished..."
 echo ""
 pkill -e -f firefox ; firefox --new-instance --private-window "https://www.supremocontrol.com/it/supremo-download/?autoDownload=1"
-7z x mv ~/Scaricati/Supremo.exe .rsrc/1033/ICON/3.ico -o$TMP_DIR
-mv $TMP_DIR/.rsrc/1033/ICON/3.ico  /home/uncledan/.local/share/icons/Supremo.ico
+7z e ~/Scaricati/Supremo.exe .rsrc/1033/ICON/3.ico -o$TMP_DIR
+mv $TMP_DIR/3.ico /home/uncledan/.local/share/icons/Supremo.ico
 mkdir -p .wine/drive_c/'Program Files (x86)'/Supremo
 mv ~/Scaricati/Supremo.exe /home/uncledan/.wine/drive_c/'Program Files (x86)'/Supremo/Supremo.exe
 cat <<EOF > /home/uncledan/.local/share/applications/Supremo.desktop
