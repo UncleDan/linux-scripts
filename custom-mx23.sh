@@ -161,6 +161,15 @@ X-KDE-SubstituteUID=false
 X-KDE-Username=
 EOF
 
+echo ""
+echo "Downloading my favourite wallpaper, close Firefox when finished..."
+echo ""
+pkill -e -f firefox ; firefox --new-instance --private-window "https://unsplash.com/photos/kXJksx1kdJ0/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTF8fGJhc2tldGJhbGx8aXR8MHx8fHwxNjkzOTg4MzgxfDA&force=true "
+sudo mv ~/Scaricati/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg /usr/share/wallpapers/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg
+sudo chown root:root /usr/share/wallpapers/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg
+sudo chmod 755 /usr/share/wallpapers/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg
+
+
 ### ----------------------------------------------------------------------
 ### THE END
 ### ----------------------------------------------------------------------
