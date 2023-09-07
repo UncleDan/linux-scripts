@@ -195,13 +195,9 @@ cd $TMP_DIR/segoe-ui-linux
 sudo ./install.sh
 
 echo ""
-echo "Downloading Windows 10 style menu..."
+echo "Downloading Windows 10 style menu (better install from Discover)..."
 echo ""
 pkill -e -f firefox ; firefox --new-instance --private-window "https://store.kde.org/p/1160672/"
-mv ~/Scaricati/KwinDE.tar.gz $TMP_DIR
-sudo tar -xvzf $TMP_DIR/KwinDE.tar.gz -C /usr/share/icons/
-sudo chown -R root:root /usr/share/icons/KwinDE
-sudo chmod -R 755 /usr/share/icons/KwinDE
 
 echo "Don't forgeto to":
 echo "* set menu bar height to 40px"
