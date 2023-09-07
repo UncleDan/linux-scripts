@@ -63,7 +63,7 @@ sudo apt install -y \
  avidemux \
  audacity \
  filezilla \
- kdenlive \
+ kdenlive mediainfo frei0r-plugins \
  keepassxc \
  libreoffice-l10n-it hyphen-it mythes-it libreoffice-help-it hunspell hunspell-it \
  obs-studio \
@@ -164,11 +164,51 @@ EOF
 echo ""
 echo "Downloading my favourite wallpaper, close Firefox when finished..."
 echo ""
-pkill -e -f firefox ; firefox --new-instance --private-window "https://unsplash.com/photos/kXJksx1kdJ0/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTF8fGJhc2tldGJhbGx8aXR8MHx8fHwxNjkzOTg4MzgxfDA&force=true "
+pkill -e -f firefox ; firefox --new-instance --private-window "https://unsplash.com/photos/kXJksx1kdJ0/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTF8fGJhc2tldGJhbGx8aXR8MHx8fHwxNjkzOTg4MzgxfDA&force=true"
 sudo mv ~/Scaricati/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg /usr/share/wallpapers/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg
 sudo chown root:root /usr/share/wallpapers/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg
 sudo chmod 755 /usr/share/wallpapers/abhishek-chandra-kXJksx1kdJ0-unsplash.jpg
 
+echo ""
+echo "Downloading Windows 10 Theme (yes, I am lazy!): at the end a page with last details to polish will open..."
+echo ""
+mkdir -p $TMP_DIR/We10XOS-kde
+git clone https://github.com/yeyushengfan258/We10XOS-kde.git $TMP_DIR/We10XOS-kde
+cd $TMP_DIR/We10XOS-kde
+sudo ./install.sh
+
+echo ""
+echo "Downloading Windows 10 icons, click Files and then DL, then close Firefox..."
+echo ""
+pkill -e -f firefox ; firefox --new-instance --private-window "https://store.kde.org/p/1387736/"
+mv ~/Scaricati/KwinDE.tar.gz $TMP_DIR
+sudo tar -xvzf $TMP_DIR/KwinDE.tar.gz -C /usr/share/icons/
+sudo chown -R root:root /usr/share/icons/KwinDE
+sudo chmod -R 755 /usr/share/icons/KwinDE
+
+echo ""
+echo "Installing Segoe font..."
+echo ""
+mkdir -p $TMP_DIR/segoe-ui-linux
+git clone https://github.com/SpudGunMan/segoe-ui-linux $TMP_DIR/segoe-ui-linux
+cd $TMP_DIR/segoe-ui-linux
+sudo ./install.sh
+
+echo ""
+echo "Downloading Windows 10 style menu..."
+echo ""
+pkill -e -f firefox ; firefox --new-instance --private-window "https://store.kde.org/p/1160672/"
+mv ~/Scaricati/KwinDE.tar.gz $TMP_DIR
+sudo tar -xvzf $TMP_DIR/KwinDE.tar.gz -C /usr/share/icons/
+sudo chown -R root:root /usr/share/icons/KwinDE
+sudo chmod -R 755 /usr/share/icons/KwinDE
+
+echo "Don't forgeto to":
+echo "* set menu bar height to 40px"
+echo "* install the codecs"
+echo "* follow the guide"
+echo "* enjoy!"
+pkill -e -f firefox ; firefox --new-instance --private-window "https://www.dedoimedo.com/computers/plasma-look-like-win10.html"
 
 ### ----------------------------------------------------------------------
 ### THE END
