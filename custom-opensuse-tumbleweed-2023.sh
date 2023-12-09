@@ -1,11 +1,54 @@
+### Project: UNCLEDAN CUSTOM WORKSTATION
+### Base OS: OpenSUSE Tumbleweed
+
 #!/bin/bash
-FREEFILESYNC_VERSION="12.5"
+FREEFILESYNC_VERSION="13.2"
 IPSCAN_VERSION="3.9.1"
 STRETCHLY_VERSION="1.15.1"
 VEEAM_VERSION="1.0.8"
-TORBROWSER_VERSION="12.5.3"
+TORBROWSER_VERSION="13.0.6"
 
 TMP_DIR=$(mktemp -d -t cl-$(date +%Y%m%d-%H%M%S)-XXXXXX)
+
+### Additional software:
+# 7zip (via repository)
+# Angry IP Scanner (via RPM package)
+# Anydesk (via external repository)
+# Audacity (via repository)
+# Avidemux (via repository)
+# Code [Microsoft Virtual Studio Code] (via external repository)
+# Filezilla (via repository)
+# FreeFileSync TGZ package (via TGZ package)
+# Git {via repository}
+# Google Chrome (via external repository)
+# Kdenlive (mediainfo frei0r-plugins) {via repository}
+# KeepassXC {via repository}
+# Libre Office (italiano) {via repository}
+# NotepadQQ (Notepad++ clone) {via repository}
+# OBS Studio {via repository}
+# Olive Video Editor {via AppImage package}
+# Only Office Desktop Editors {via flatpak}
+# OpenSSH Server {via repository}
+# pCloud {via AppImage Package}
+# Putty {via repository}
+# Stretchly {via flatpak}
+# Supremo {Windows packege via wine}
+# Teamviewer {via external repository}
+# Thunderbird [Mozilla Thunderbird] {via repository}
+# TOR Browser {via TXZ package}
+# Veeam Backup Agent  {via external repository}*
+# VirtualBox [Oracle VirtualBox] {via external repository}
+# Webex {via RPM package}
+# zip unzip {via repository}
+# Zoom {via RPM package}
+
+# * Error:
+# WARNING: /usr/lib/dkms/common.postinst does not exist.
+# ERROR: DKMS version is too old and blksnap was not
+# built with legacy DKMS support.
+# You must either rebuild blksnap with legacy postinst
+# support or upgrade DKMS to a more current version.
+
 
 sudo echo "***** CUSTOMIZING... *****"
 echo ""
@@ -15,7 +58,6 @@ echo ""
 sudo timedatectl set-local-rtc 1 --adjust-system-clock
 
 ### INSTALLATIONS FROM REPO ###
-
 
 echo ""
 echo "** Add AnyDesk repository and key..."
@@ -57,21 +99,42 @@ EOF
 sudo zypper addrepo --repo $TMP_DIR/teamviewer.repo
 
 echo ""
+echo "** Add Veeam repository and key..."
+sudo rpm --import http://repository.veeam.com/keys/RPM-EFDCEA77
+cat > $TMP_DIR/veeam.repo  << "EOF"
+[veeam]
+name=Veeam Backup for GNU/Linux - $basearch
+baseurl=http://repository.veeam.com/backup/linux/agent/rpm/suse/openSUSE
+enabled=1
+autorefresh=1
+gpgcheck=1
+gpgkey=http://repository.veeam.com/keys/RPM-EFDCEA77
+EOF
+sudo zypper addrepo --repo $TMP_DIR/veeam.repo
+
+echo ""
 echo "** Install from repositories..."
 sudo zypper -n refresh
-sudo zypper -n install anydesk \
+sudo zypper -n install \
+ anydesk \
  code \
  google-chrome-stable \
  teamviewer-suse \
+ veeam \
  7zip \
  audacity \
+ digikam \
  filezilla \
+ gimp \
+ git-core \
+ inkscape xsane \
  kdenlive mediainfo frei0r-plugins \
  keepassxc \
+ MozillaThunderbird \
+ obs-studio \
  openssh-server\
  partitionmanager \
  putty \
- thunderbird \
  virtualbox \
  zip unzip
 
@@ -118,22 +181,15 @@ sudo zypper install $TMP_DIR/webex.rpm
 
 echo ""
 echo "** Installing Zoom RPM package..."
-echo ""
 curl -L https://zoom.us/client/latest/zoom_openSUSE_x86_64.rpm -o $TMP_DIR/zoom.rpm
-sudo rpm --import https://zoom.us/linux/download/pubkey
-sudo zypper -n install $TMP_DIR/zoom.rpm
-
+echo ""
+echo "If an error is reported, choose to continue ignoring the signature (at your own risk)..." ## check if you can do better
+echo ""
+sudo zypper install $TMP_DIR/zoom.rpm
 
 ### INSTALLATIONS FROM APPIMAGE ###
 
 mkdir -p ~/AppImages
-
-echo ""
-echo "** Installing Onlyoffice Desktop Editors as AppImage..." ## openSUSE is not mentioned for RPM
-rm -f ~/AppImages/DesktopEditors-x86_64.AppImage
-curl -L https://github.com/ONLYOFFICE/appimage-desktopeditors/releases/download/v7.5.1/DesktopEditors-x86_64.AppImage -o ~/AppImages/DesktopEditors-x86_64.AppImage
-chmod +x ~/AppImages/DesktopEditors-x86_64.AppImage
-~/AppImages/DesktopEditors-x86_64.AppImage ## check wrond display size or switch to flathub (MBs??)
 
 echo ""
 echo "Installing Olive Video Editor AppImage package, click on the download for Linux icon and close Firefox when download is finished..."
@@ -149,81 +205,63 @@ echo ""
 echo "** Installing pCloud AppImage..."
 echo ""
 pkill -e -f firefox ; firefox --new-instance --private-window "https://www.pcloud.com/how-to-install-pcloud-drive-linux.html?download=electron-64"
-mv ~/Scaricati/pcloud ~/AppImages/pCloud.AppImage
-chmod +x ~/AppImages/pCloud.AppImage
-/opt/pcloud/pcloud
+sudo rm -f /usr/bin/pcloud
+sudo mv ~/Scaricati/pcloud /usr/bin/pcloud
+sudo chown root:root /usr/bin/pcloud ; sudo chmod 755 /usr/bin/pcloud
+/usr/bin/pcloud
 
-echo ""
-echo "** Stretchly as AppImage..." ## missing dependencies for RPM
-rm -f ~/AppImages/Stretchly.AppImage
-wget -O ~/AppImages/Stretchly.AppImage https://github.com/hovancik/stretchly/releases/download/v$STRETCHLY_VERSION/Stretchly-$STRETCHLY_VERSION.AppImage
-chmod +x ~/AppImages/Stretchly.AppImage
-~/AppImages/Stretchly.AppImage ## check icon or switch to flatub (much more MBs!)
+### INSTALLATIONS FROM FLATHUB ###
 
-##### |||
-##### VVV CHECK FROM HERE !!!
+echo "** Installing Onlyoffice Desktop Editors as flatpak..." ## openSUSE is not mentioned for RPM
+sudo flatpak install -y https://dl.flathub.org/repo/appstream/org.onlyoffice.desktopeditors.flatpakref
+
+echo "** Installing Stretchly as flatpak..."
+sudo flatpak install -y https://dl.flathub.org/repo/appstream/net.hovancik.Stretchly.flatpakref
 
 ### INSTALLATIONS FROM TAR GZ/XZ ###
 
 echo ""
-echo "** Installing FreeFileSync..."
+echo "** Installing FreeFileSync TGZ package..."
 echo ""
-curl -L https://freefilesync.org/download/FreeFileSync_11.22_Linux.tar.gz -o $TMP_DIR/FreeFileSync_11.22_Linux.tar.gz
-tar -xvzf $TMP_DIR/FreeFileSync_11.22_Linux.tar.gz -C $TMP_DIR/
-$TMP_DIR/FreeFileSync_11.22_Install.run
-### ^^^ Check if FreeFileSync can be completely silentecho ""
-echo "** Installing wine and Notepad++"
+curl -L "https://freefilesync.org/download/FreeFileSync_${FREEFILESYNC_VERSION}_Linux.tar.gz"  -o $TMP_DIR/freefilesync.tar.gz
+tar -xvzf $TMP_DIR/freefilesync.tar.gz -C $TMP_DIR
+sudo $TMP_DIR/FreeFileSync_${FREEFILESYNC_VERSION}_Install.run
+# ^^^ Check if FreeFileSync can be completely silent
+rm -f ~/Scrivania/{FreeFileSync,RealTimeSync}.desktop
+# ^^^ remove icons on desktop if createf by chance
+
 echo ""
-sudo zypper -n install wine
-curl -L https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.4.2/npp.8.4.2.Installer.x64.exe -o $TMP_DIR/npp.8.4.2.Installer.x64.exe
-wine $TMP_DIR/npp.8.4.2.Installer.x64.exe
+echo "Installing TOR Browser TXZ package..."
+curl -L https://www.torproject.org/dist/torbrowser/${TORBROWSER_VERSION}/tor-browser-linux-x86_64-${TORBROWSER_VERSION}.tar.xz -o $TMP_DIR/tor-browser.tar.xz
+tar -xvf $TMP_DIR/tor-browser.tar.xz -C ~
+chmod +x ~/tor-browser/start-tor-browser.desktop ; cd ~/tor-browser/ ; ./start-tor-browser.desktop --register-app ; cd ~
+
+### INSTALLATIONS FROM WINDOWS PACKAGES ###
+
 echo ""
-echo "** Installing Oracle Virtualbox"
-echo ""
-sudo zypper -n install virtualbox
-sudo gpasswd -a $USER vboxusers
-echo ""
-echo "A reboot might be required before Virtualbox first launche."
-echo ""
-echo "** Installing \"Studio\" features..."
-echo ""
-echo "* AUDIO: JACK, CARLA, Audacity, Qtractor, Hydrogen RPM packages..."
-echo ""
-sudo zypper -n install jack carla audacity qtractor hydrogen carla-vst
-echo ""
-echo "* AUDIO: Ardour flatpak package..."
-echo ""
-sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-sudo flatpak install flathub org.ardour.Ardour -y
-echo ""
-echo "** Installing Yoshimi RPM package from repo..."
-echo ""
-sudo zypper addrepo https://download.opensuse.org/repositories/multimedia:proaudio/openSUSE_Tumbleweed/multimedia:proaudio.repo
-echo ""
-echo "Official key not available: to continue choose always trusted key (at your own risk)" ## check if you can do better
-echo ""
-sudo zypper refresh
-sudo zypper -n install yoshimi
-echo ""
-echo "* GRAPHICS: Blender, Inkscape, GIMP RPM packages..."
-echo ""
-sudo zypper -n install blender inkscape gimp
-### Missing Pixopixel http://twilightedge.com/mac/pikopixel/
-echo ""
-echo "* PHOTOGRAPY: Darktable, Shotwell flatpak packages..."
-echo ""
-sudo flatpak install flathub org.darktable.Darktable -y
-sudo flatpak install flathub org.gnome.Shotwell -y
-echo ""
-echo "* VIDEO: Openshot, Ffmpeg, Kdenlive(*) RPM packages..."
-echo ""
-sudo zypper -n install openshot ffmpeg kdenlive
-echo ""
-echo "* VIDEO: OBS(*) flatpak package..."
-echo ""
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-sudo flatpak install flathub com.obsproject.Studio -y
-### not necessary anymore: flatpak run com.obsproject.Studio
+echo "Installing Supremo to be run with wine in home folder, close Firefox when download is finished..."
+pkill -e -f firefox ; firefox --new-instance --private-window "https://www.supremocontrol.com/it/supremo-download/?autoDownload=1"
+7z e ~/Scaricati/Supremo.exe .rsrc/1033/ICON/3.ico -o$TMP_DIR
+mv $TMP_DIR/3.ico ~/.local/share/icons/Supremo.ico
+mkdir -p ~/.wine/drive_c/'Program Files (x86)'/Supremo
+mv ~/Scaricati/Supremo.exe ~/.wine/drive_c/'Program Files (x86)'/Supremo/Supremo.exe
+cat <<EOF > ~/.local/share/applications/Supremo.desktop
+[Desktop Entry]
+Comment=
+Exec=env WINEPREFIX=/home/$(whoami)/.wine wine '/home/$(whoami)/.wine/drive_c/Program Files (x86)/Supremo/Supremo.exe'
+GenericName=Supremo Remote Control
+Icon=/home/$(whoami)/.local/share/icons/Supremo.ico
+Name=Supremo
+NoDisplay=false
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=
+EOF
+
 echo ""
 echo "If you want you can set KDE theme to \"Breeze Dark\" (Brezza scuro) and style to \"Oxygen\" (Oxygen) and move the dock to the top side."
 echo ""
