@@ -1,244 +1,577 @@
 #!/bin/bash
 
-set -e  # Exit on error
-clear
+# ==============================================================================
+# pulizia-cache
+# Pulizia cache, temporanei e file rigenerabili per:
+#   Thunderbird, Firefox, LibreWolf, Chrome, Chromium, pCloud, Konqueror
+#
+# Uso:
+#   ./pulizia-cache.sh                  # pulizia completa
+#   ./pulizia-cache.sh --dry-run        # simulazione (nessuna cancellazione)
+#   ./pulizia-cache.sh thunderbird      # solo Thunderbird
+#   ./pulizia-cache.sh firefox chrome   # solo Firefox e Chrome
+#   ./pulizia-cache.sh --list           # mostra le app disponibili
+#
+# Opzioni combinabili:
+#   ./pulizia-cache.sh --dry-run firefox thunderbird
+# ==============================================================================
 
-# Configurazione
-TB_PROFILE_PATH="$HOME/.thunderbird"
-TB_CACHE_PATH="$HOME/.cache/thunderbird"
-CHROME_CACHE_ROOT="$HOME/.cache/google-chrome"
-CHROME_CONFIG_ROOT="$HOME/.config/google-chrome"
-PCLOUD_CACHE_PATH="$HOME/.pcloud/Cache"
-PCLOUD_TN_PATH="$HOME/.pcloud/ntfthumbs"
-FIREFOX_PROFILES_PATH="$HOME/.mozilla/firefox"
-FIREFOX_CACHE_PATH="$HOME/.cache/mozilla/firefox"
+# --- Impostazioni globali ---
+DRY_RUN=false
+BYTES_TOTAL=0
 
-# Funzioni
+# --- Colori ---
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+# ==============================================================================
+# UTILITÀ
+# ==============================================================================
+
+log_section() {
+    echo -e "\n${BOLD}${CYAN}### $1 ###${RESET}\n"
+}
+
+log_info()    { echo -e "  ℹ️  $1"; }
+log_ok()      { echo -e "  ${GREEN}✅ $1${RESET}"; }
+log_warn()    { echo -e "  ${YELLOW}⚠️  $1${RESET}"; }
+log_error()   { echo -e "  ${RED}❌ $1${RESET}"; }
+log_dry()     { echo -e "  ${YELLOW}[DRY-RUN]${RESET} $1"; }
+log_delete()  { echo -e "  🗑️  $1"; }
+
+# Dimensione di un percorso (file o directory). Ritorna 0 se non esiste.
+path_size_bytes() {
+    local path="$1"
+    if [ -e "$path" ]; then
+        du -sb "$path" 2>/dev/null | awk '{print $1}'
+    else
+        echo 0
+    fi
+}
+
+# Formatta bytes in unità leggibile
+format_bytes() {
+    local bytes=$1
+    if   (( bytes >= 1073741824 )); then awk "BEGIN{printf \"%.2f GB\", $bytes/1073741824}"
+    elif (( bytes >= 1048576    )); then awk "BEGIN{printf \"%.2f MB\", $bytes/1048576}"
+    elif (( bytes >= 1024       )); then awk "BEGIN{printf \"%.2f KB\", $bytes/1024}"
+    else echo "${bytes} B"
+    fi
+}
+
+# Aggiunge bytes al totale globale
+add_to_total() {
+    BYTES_TOTAL=$(( BYTES_TOTAL + $1 ))
+}
+
+# Controlla se un processo è in esecuzione. Ritorna 1 se attivo.
 check_process_running() {
-    local process_name=$1
-    if pgrep -x "$process_name" > /dev/null; then
-        echo "❌ ERRORE: $process_name è in esecuzione. Chiudilo prima."
+    local process_name="$1"
+    if pgrep -x "$process_name" > /dev/null 2>&1; then
+        log_error "$process_name è in esecuzione. Chiudilo prima di continuare."
         return 1
     fi
     return 0
 }
 
-clean_directory() {
-    local dir_path=$1
-    local description=$2
+# Svuota il contenuto di una directory (non la directory stessa).
+# In dry-run mostra solo cosa verrebbe rimosso.
+clean_dir_contents() {
+    local dir_path="$1"
+    local description="${2:-$dir_path}"
 
-    if [ -d "$dir_path" ]; then
-        echo "🧹 $description: $dir_path"
-        if [ "$(ls -A "$dir_path")" ]; then
-            rm -rf "$dir_path"/*
-            echo "✅ $description completata."
-        else
-            echo "ℹ️  Directory già vuota."
-        fi
-    else
-        echo "ℹ️  Directory non trovata: $dir_path"
+    if [ ! -d "$dir_path" ]; then
+        log_info "Non trovata: $dir_path"
+        return 0
     fi
+
+    # Controlla se è vuota
+    if [ -z "$(ls -A "$dir_path" 2>/dev/null)" ]; then
+        log_info "Già vuota: $description"
+        return 0
+    fi
+
+    local size
+    size=$(path_size_bytes "$dir_path")
+
+    if $DRY_RUN; then
+        log_dry "Svuoterei: $description ($(format_bytes "$size"))"
+    else
+        log_delete "Svuoto: $description ($(format_bytes "$size"))"
+        rm -rf "$dir_path"/*
+        log_ok "Completata."
+    fi
+
+    add_to_total "$size"
 }
 
-clean_firefox_cache() {
-    echo -e "\n\n\n### PULIZIA FIREFOX ###\n"
+# Rimuove una directory intera.
+remove_dir() {
+    local dir_path="$1"
+    local description="${2:-$dir_path}"
 
-    # Controllo processo Firefox
-    if pgrep -x "firefox" > /dev/null; then
-        echo "❌ ERRORE: Firefox è in esecuzione. Chiudilo prima."
-        return 1
+    if [ ! -d "$dir_path" ]; then
+        return 0
     fi
 
-    echo "🚀 Inizio pulizia approfondita di Firefox..."
+    local size
+    size=$(path_size_bytes "$dir_path")
 
-    # --- FASE 1: Pulizia Cache Principale (.cache) ---
-    if [ -d "$FIREFOX_CACHE_PATH" ]; then
-        echo "📂 Pulizia cache principale: $FIREFOX_CACHE_PATH"
-        find "$FIREFOX_CACHE_PATH" -mindepth 1 -maxdepth 1 -type d | while read -r profile_cache; do
-            if [ -d "$profile_cache" ]; then
-                profile_name=$(basename "$profile_cache")
-                echo "   🧹 Pulizia cache per profilo: $profile_name"
-                rm -rf "$profile_cache"/*
-            fi
-        done
-        echo "✅ Cache principale svuotata."
+    if $DRY_RUN; then
+        log_dry "Rimuoverei directory: $description ($(format_bytes "$size"))"
     else
-        echo "ℹ️  Nessuna cartella cache principale trovata: $FIREFOX_CACHE_PATH"
+        log_delete "Rimuovo directory: $description ($(format_bytes "$size"))"
+        rm -rf "$dir_path"
     fi
 
-    # --- FASE 2: Pulizia Cache nei Profili (.mozilla/firefox) ---
-    if [ -d "$FIREFOX_PROFILES_PATH" ]; then
-        echo "🔍 Pulizia cache nei profili: $FIREFOX_PROFILES_PATH"
+    add_to_total "$size"
+}
 
-        # Trova tutte le cartelle dei profili (escludendo i file)
-        find "$FIREFOX_PROFILES_PATH" -mindepth 1 -maxdepth 1 -type d | while read -r profile_dir; do
-            profile_name=$(basename "$profile_dir")
-            echo "   📁 Elaborazione profilo: $profile_name"
+# Rimuove file tramite pattern find (nella directory specificata).
+remove_files_pattern() {
+    local base_dir="$1"
+    local description="$2"
+    shift 2
+    local find_args=("$@")   # es: -name "*.tmp" -o -name "*.bak"
 
-            # Directory della cache all'interno del profilo
-            cache_dirs=(
-                "cache"
-                "cache2"
-                "thumbnails"
-                "startupCache"
-                "weave"
-                "storage"
-            )
+    if [ ! -d "$base_dir" ]; then
+        return 0
+    fi
 
-            for cache_dir in "${cache_dirs[@]}"; do
-                cache_path="$profile_dir/$cache_dir"
-                if [ -d "$cache_path" ]; then
-                    echo "      🗑️  Rimozione: $cache_dir"
-                    rm -rf "$cache_path"
-                fi
+    local files
+    mapfile -t files < <(find "$base_dir" "${find_args[@]}" 2>/dev/null)
+
+    if [ ${#files[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    local size=0
+    for f in "${files[@]}"; do
+        local s
+        s=$(path_size_bytes "$f")
+        size=$(( size + s ))
+    done
+
+    if $DRY_RUN; then
+        log_dry "Rimuoverei ${#files[@]} file ($description) → $(format_bytes "$size")"
+    else
+        log_delete "${#files[@]} file: $description ($(format_bytes "$size"))"
+        find "$base_dir" "${find_args[@]}" -delete 2>/dev/null
+    fi
+
+    add_to_total "$size"
+}
+
+# ==============================================================================
+# FIREFOX / LIBREWOLF — funzione generica
+# ==============================================================================
+
+clean_gecko_browser() {
+    local browser_name="$1"          # "Firefox" o "LibreWolf"
+    local process_name="$2"          # "firefox" o "librewolf"
+    local profiles_path="$3"         # ~/.mozilla/firefox o ~/.librewolf
+    local cache_path="$4"            # ~/.cache/mozilla/firefox o ~/.cache/librewolf
+
+    log_section "PULIZIA $browser_name"
+
+    check_process_running "$process_name" || return 1
+
+    # Cache esterna (~/.cache/...)
+    if [ -d "$cache_path" ]; then
+        log_info "Cache principale: $cache_path"
+        find "$cache_path" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | while read -r profile_cache; do
+            clean_dir_contents "$profile_cache" "Cache profilo $(basename "$profile_cache")"
+        done
+    else
+        log_info "Nessuna cache principale trovata: $cache_path"
+    fi
+
+    # Dentro i profili (~/.mozilla/firefox/<profilo>/...)
+    if [ -d "$profiles_path" ]; then
+        find "$profiles_path" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | while read -r profile_dir; do
+            local pname
+            pname=$(basename "$profile_dir")
+            log_info "Profilo: $pname"
+
+            for cache_subdir in cache cache2 thumbnails startupCache offlinecache; do
+                remove_dir "$profile_dir/$cache_subdir" "$pname/$cache_subdir"
             done
 
-            # Pulizia file specifici della cache
-            find "$profile_dir" -type f \( -name "*.jsonlz4" -o -name "*.bak" -o -name "*.tmp" \) -delete
+            # storage/: contiene cache ServiceWorker e simili, ma NON toccare
+            # la sottocartella "default" che include dati persistenti delle estensioni.
+            # Rimuoviamo solo temporary/ e cache/ dentro storage/.
+            for storage_sub in temporary cache; do
+                remove_dir "$profile_dir/storage/$storage_sub" "$pname/storage/$storage_sub"
+            done
 
-            # Pulizia cache offline
-            offline_cache="$profile_dir/offlinecache"
-            if [ -d "$offline_cache" ]; then
-                echo "      🗑️  Rimozione cache offline"
-                rm -rf "$offline_cache"
-            fi
+            # weave/: dati Sync temporanei (token, status)
+            remove_dir "$profile_dir/weave/logs"        "$pname/weave/logs"
+            remove_dir "$profile_dir/weave/failed"      "$pname/weave/failed"
+
+            # File temporanei e di crash
+            remove_files_pattern "$profile_dir" "*.jsonlz4 backup sessione" \
+                -maxdepth 1 -type f \( -name "sessionCheckpoints.json" \)
+            remove_files_pattern "$profile_dir/sessionstore-backups" "backup sessione" \
+                -type f
+            remove_files_pattern "$profile_dir" "file tmp/bak" \
+                -maxdepth 2 -type f \( -name "*.bak" -o -name "*.tmp" -o -name "*.corrupt" \)
+            remove_files_pattern "$profile_dir" "minidump crash" \
+                -maxdepth 2 -type f -name "*.dmp"
         done
-        echo "✅ Cache dei profili pulita."
     else
-        echo "ℹ️  Nessuna cartella profili Firefox trovata: $FIREFOX_PROFILES_PATH"
+        log_info "Nessuna cartella profili trovata: $profiles_path"
     fi
 
-    # --- FASE 3: Pulizia Cache di Sistema ---
-    echo "🔍 Pulizia cache di sistema Firefox..."
-
-    # Cache shader
-    if [ -d "$HOME/.cache/mesa_shader_cache" ]; then
-        echo "   🗑️  Rimozione cache shader Mesa"
-        rm -rf "$HOME/.cache/mesa_shader_cache"
+    # Cache shader/IPC di sistema (solo per Firefox)
+    if [ "$process_name" = "firefox" ]; then
+        remove_dir "$HOME/.cache/mesa_shader_cache" "mesa_shader_cache"
+        remove_dir "$HOME/.cache/mozilla-ipc"       "mozilla-ipc"
     fi
 
-    # Cache IPC
-    if [ -d "$HOME/.cache/mozilla-ipc" ]; then
-        echo "   🗑️  Rimozione cache IPC"
-        rm -rf "$HOME/.cache/mozilla-ipc"
-    fi
-
-    echo "✅ Pulizia Firefox completata. Al prossimo avvio Firefox ricostruirà le cache."
+    log_ok "Pulizia $browser_name completata. Al prossimo avvio le cache verranno ricostruite."
 }
 
-clean_thunderbird() {
-    echo -e "\n\n\n### PULIZIA THUNDERBIRD ###\n"
+clean_firefox() {
+    clean_gecko_browser \
+        "FIREFOX" \
+        "firefox" \
+        "$HOME/.mozilla/firefox" \
+        "$HOME/.cache/mozilla/firefox"
+}
 
-    # Controllo processo Thunderbird
+clean_librewolf() {
+    clean_gecko_browser \
+        "LIBREWOLF" \
+        "librewolf" \
+        "$HOME/.librewolf" \
+        "$HOME/.cache/librewolf"
+}
+
+# ==============================================================================
+# THUNDERBIRD
+# ==============================================================================
+
+clean_thunderbird() {
+    log_section "PULIZIA THUNDERBIRD"
+
     check_process_running "thunderbird" || return 1
 
-    echo "🚀 Inizio pulizia approfondita di Thunderbird..."
+    local tb_profile_path="$HOME/.thunderbird"
+    local tb_cache_path="$HOME/.cache/thunderbird"
 
-    # --- FASE 1: Pulizia Cache Web ---
-    clean_directory "$TB_CACHE_PATH" "Pulizia Cache temporanea"
+    # Cache esterna
+    clean_dir_contents "$tb_cache_path" "Cache temporanea Thunderbird"
 
-    # --- FASE 2: Pulizia ImapMail ---
-    echo "🔍 Ricerca cartelle ImapMail..."
-    find "$TB_PROFILE_PATH" -type d -name "ImapMail" 2>/dev/null | while read -r imap_folder; do
-        if [ -n "$(ls -A "$imap_folder")" ]; then
-            echo "   🗑️  Svuoto: $imap_folder"
-            rm -rf "$imap_folder"/*
+    if [ ! -d "$tb_profile_path" ]; then
+        log_info "Cartella profili non trovata: $tb_profile_path"
+        return 0
+    fi
+
+    find "$tb_profile_path" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | while read -r profile_dir; do
+        local pname
+        pname=$(basename "$profile_dir")
+        log_info "Profilo: $pname"
+
+        # --- Cache web interna al profilo ---
+        remove_dir "$profile_dir/cache"       "$pname/cache"
+        remove_dir "$profile_dir/cache2"      "$pname/cache2"
+        remove_dir "$profile_dir/startupCache" "$pname/startupCache"
+
+        # --- Database indice globale (ricostruito automaticamente) ---
+        remove_files_pattern "$profile_dir" "global-messages-db.sqlite" \
+            -maxdepth 1 -type f -name "global-messages-db.sqlite"
+
+        # --- File .msf (indici messaggi, rigenerati da TB) ---
+        remove_files_pattern "$profile_dir" "file .msf (indici)" \
+            -type f -name "*.msf"
+
+        # --- ImapMail: cancella tutti i file tranne msgFilterRules.dat ---
+        if [ -d "$profile_dir/ImapMail" ]; then
+            find "$profile_dir/ImapMail" -mindepth 2 -maxdepth 2 -type f \
+                ! -name "msgFilterRules.dat" 2>/dev/null | while read -r mail_file; do
+                local fsize
+                fsize=$(path_size_bytes "$mail_file")
+                if $DRY_RUN; then
+                    log_dry "Rimuoverei: ${mail_file##"$profile_dir/"} ($(format_bytes "$fsize"))"
+                else
+                    log_delete "${mail_file##"$profile_dir/"} ($(format_bytes "$fsize"))"
+                    rm -f "$mail_file"
+                fi
+                add_to_total "$fsize"
+            done
+            # Rimuovi le sottocartelle (es. .sbd alberi) che non siano file filtri
+            find "$profile_dir/ImapMail" -mindepth 2 -maxdepth 2 -type d 2>/dev/null | while read -r mail_subdir; do
+                remove_dir "$mail_subdir" "${mail_subdir##"$profile_dir/"}"
+            done
+        fi
+
+        # --- Mail locale: cancella tutto tranne msgFilterRules.dat ---
+        if [ -d "$profile_dir/Mail" ]; then
+            find "$profile_dir/Mail" -mindepth 2 -maxdepth 2 -type f \
+                ! -name "msgFilterRules.dat" 2>/dev/null | while read -r mail_file; do
+                local fsize
+                fsize=$(path_size_bytes "$mail_file")
+                if $DRY_RUN; then
+                    log_dry "Rimuoverei: ${mail_file##"$profile_dir/"} ($(format_bytes "$fsize"))"
+                else
+                    log_delete "${mail_file##"$profile_dir/"} ($(format_bytes "$fsize"))"
+                    rm -f "$mail_file"
+                fi
+                add_to_total "$fsize"
+            done
+            find "$profile_dir/Mail" -mindepth 2 -maxdepth 2 -type d 2>/dev/null | while read -r mail_subdir; do
+                remove_dir "$mail_subdir" "${mail_subdir##"$profile_dir/"}"
+            done
+        fi
+
+        # --- Crash reports ---
+        remove_dir "$profile_dir/crashes" "$pname/crashes"
+        remove_files_pattern "$profile_dir" "minidump crash" \
+            -maxdepth 3 -type f -name "*.dmp"
+
+        # --- File temporanei ---
+        remove_files_pattern "$profile_dir" "file tmp/bak" \
+            -maxdepth 2 -type f \( -name "*.bak" -o -name "*.tmp" \)
+    done
+
+    log_ok "Pulizia Thunderbird completata. Al riavvio TB reindicizzerà i messaggi."
+}
+
+# ==============================================================================
+# CHROME / CHROMIUM — funzione generica
+# ==============================================================================
+
+clean_chromium_based() {
+    local browser_name="$1"
+    local process_names=("${@:2:$#-3}")   # tutti tranne primo e ultimi due
+    local cache_root="${*: -2:1}"
+    local config_root="${*: -1}"
+
+    log_section "PULIZIA $browser_name"
+
+    local running=false
+    for proc in "${process_names[@]}"; do
+        if pgrep -x "$proc" > /dev/null 2>&1; then
+            log_error "$browser_name ($proc) è in esecuzione. Chiudilo prima."
+            running=true
+            break
         fi
     done
-    echo "✅ Cartelle ImapMail pulite."
+    $running && return 1
 
-    # --- FASE 3: Reset Indice Globale ---
-    echo "🔍 Ricerca database global-messages-db.sqlite..."
-    find "$TB_PROFILE_PATH" -name "global-messages-db.sqlite" -type f -delete
-    echo "✅ Database di ricerca eliminato (sarà ricostruito all'avvio)."
+    # Cache web principale (~/.cache/...)
+    if [ -d "$cache_root" ]; then
+        for profile_cache in "$cache_root"/*/; do
+            [ -d "$profile_cache" ] || continue
+            clean_dir_contents "$profile_cache" "Cache profilo $(basename "$profile_cache")"
+        done
+    else
+        log_info "Nessuna cache trovata: $cache_root"
+    fi
 
-    # --- FASE 4: Pulizia file .msf ---
-    echo "🔍 Rimozione indici .msf corrotti..."
-    find "$TB_PROFILE_PATH" -name "*.msf" -type f -delete
-    echo "✅ File .msf eliminati."
+    # Cache GPU, Shader, Code dentro ~/.config/...
+    if [ -d "$config_root" ]; then
+        find "$config_root" -type d \
+            \( -name "GPUCache" -o -name "ShaderCache" -o -name "Code Cache" \
+               -o -name "DawnCache" -o -name "GrShaderCache" \) \
+            2>/dev/null | while read -r extra_cache; do
+            remove_dir "$extra_cache" "${extra_cache##"$config_root/"}"
+        done
 
-    echo "🏁 Pulizia Thunderbird completata. Al riavvio Thunderbird reindicizzerà i messaggi."
+        # Crash reports
+        find "$config_root" -type d -name "Crash Reports" 2>/dev/null | while read -r crash_dir; do
+            remove_dir "$crash_dir" "${crash_dir##"$config_root/"}"
+        done
+
+        # File temporanei
+        remove_files_pattern "$config_root" "file tmp/log" \
+            -maxdepth 4 -type f \( -name "*.tmp" -o -name "*.log" -o -name "*.dmp" \)
+    fi
+
+    log_ok "Pulizia $browser_name completata."
 }
 
 clean_chrome() {
-    echo -e "\n\n\n### PULIZIA CHROME ###\n"
+    clean_chromium_based "GOOGLE CHROME" \
+        "chrome" "google-chrome" \
+        "$HOME/.cache/google-chrome" \
+        "$HOME/.config/google-chrome"
+}
 
-    # Controllo processo Chrome
-    if pgrep -x "chrome" > /dev/null || pgrep -x "google-chrome" > /dev/null; then
-        echo "❌ ERRORE: Google Chrome è in esecuzione."
-        echo "Per favore chiudi il browser completamente e riprova."
+clean_chromium() {
+    clean_chromium_based "CHROMIUM" \
+        "chromium" "chromium-browser" \
+        "$HOME/.cache/chromium" \
+        "$HOME/.config/chromium"
+}
+
+# ==============================================================================
+# PCLOUD
+# ==============================================================================
+
+clean_pcloud() {
+    log_section "PULIZIA PCLOUD"
+
+    check_process_running "pcloud" || return 1
+
+    clean_dir_contents "$HOME/.pcloud/Cache"       "Cache pCloud"
+    clean_dir_contents "$HOME/.pcloud/ntfthumbs"   "Thumbnails pCloud"
+
+    # Alcuni pacchetti usano percorsi alternativi
+    clean_dir_contents "$HOME/.local/share/pcloud/Cache"     "Cache pCloud (alt)"
+    clean_dir_contents "$HOME/.local/share/pcloud/Thumbnails" "Thumbnails pCloud (alt)"
+
+    log_ok "Pulizia pCloud completata."
+}
+
+# ==============================================================================
+# KONQUEROR / KDE
+# ==============================================================================
+
+clean_konqueror() {
+    log_section "PULIZIA KONQUEROR / KDE"
+
+    # Konqueror non ha un processo daemon: controlla solo se è aperto
+    if pgrep -x "konqueror" > /dev/null 2>&1; then
+        log_error "Konqueror è in esecuzione. Chiudilo prima."
         return 1
     fi
 
-    echo "🚀 Inizio pulizia cache Google Chrome..."
+    # Cache web Konqueror (KIO / KParts)
+    remove_dir "$HOME/.cache/konqueror"       "Cache Konqueror"
+    remove_dir "$HOME/.cache/kio_http"        "Cache KIO HTTP"
+    remove_dir "$HOME/.local/share/konqueror/cache" "Cache locale Konqueror"
 
-    # --- FASE 1: Pulizia Cache Principale (.cache) ---
-    if [ -d "$CHROME_CACHE_ROOT" ]; then
-        echo "📂 Analisi cartella cache principale: $CHROME_CACHE_ROOT"
-        for profile_cache in "$CHROME_CACHE_ROOT"/*; do
-            if [ -d "$profile_cache" ]; then
-                profile_name=$(basename "$profile_cache")
-                echo "   🧹 Pulizia cache per profilo: $profile_name"
-                rm -rf "$profile_cache"/*
+    # Cookies (rigenerabili dalla navigazione, ma potrebbero essere desiderati)
+    # NON tocchiamo: ~/.local/share/konqueror/cookies  ← dati utente
+
+    # Cronologia: rigenerabile, ma è una scelta dell'utente. La lasciamo.
+    # remove_files_pattern "$HOME/.local/share/konqueror" "cronologia" \
+    #     -maxdepth 1 -type f -name "konq_history"
+
+    # Thumbnail KDE (Dolphin, Konqueror, filemanager)
+    remove_dir "$HOME/.cache/thumbnails"      "Thumbnail KDE (~/.cache/thumbnails)"
+    remove_dir "$HOME/.thumbnails"            "Thumbnail KDE legacy (~/.thumbnails)"
+
+    # Cache Plasma/KDE generica
+    remove_dir "$HOME/.cache/plasma_theme"       "Cache tema Plasma"
+    remove_dir "$HOME/.cache/plasma-svgelements" "Cache SVG Plasma"
+    remove_dir "$HOME/.cache/ksvg-elements"      "Cache ksvg"
+    remove_dir "$HOME/.cache/icon-cache.kcache"  "Cache icone KDE"
+    remove_files_pattern "$HOME/.cache" "file .kcache" \
+        -maxdepth 1 -type f -name "*.kcache"
+
+    # Crash reports KDE
+    remove_dir "$HOME/.local/share/drkonqi" "Report crash drkonqi"
+
+    log_ok "Pulizia Konqueror/KDE completata."
+}
+
+# ==============================================================================
+# TERMINAL HISTORY (commentata per default)
+# ==============================================================================
+
+# clean_history() {
+#     log_section "PULIZIA TERMINAL HISTORY"
+#     history -c
+#     > "$HOME/.bash_history"
+#     log_ok "Cronologia terminale pulita."
+# }
+
+# ==============================================================================
+# PARSING ARGOMENTI
+# ==============================================================================
+
+APP_LIST=(thunderbird firefox librewolf chrome chromium pcloud konqueror)
+
+show_help() {
+    echo ""
+    echo "  Uso: pulizia-cache [--dry-run] [--list] [app1 app2 ...]"
+    echo ""
+    echo "  Senza argomenti app: pulizia completa di tutte le applicazioni."
+    echo ""
+    echo "  App disponibili: ${APP_LIST[*]}"
+    echo ""
+    echo "  Opzioni:"
+    echo "    --dry-run   Mostra cosa verrebbe cancellato senza farlo davvero"
+    echo "    --list      Mostra le app disponibili ed esce"
+    echo ""
+}
+
+APPS_TO_CLEAN=()
+
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN=true ;;
+        --list)
+            echo "App disponibili: ${APP_LIST[*]}"
+            exit 0
+            ;;
+        --help|-h)
+            show_help
+            exit 0
+            ;;
+        *)
+            # Verifica che sia un'app valida
+            valid=false
+            for a in "${APP_LIST[@]}"; do
+                [ "$arg" = "$a" ] && valid=true && break
+            done
+            if $valid; then
+                APPS_TO_CLEAN+=("$arg")
+            else
+                echo -e "${RED}Argomento sconosciuto: $arg${RESET}"
+                show_help
+                exit 1
             fi
-        done
-        echo "✅ Cache web principale svuotata."
-    else
-        echo "ℹ️  Cartella .cache/google-chrome non trovata."
-    fi
+            ;;
+    esac
+done
 
-    # --- FASE 2: Pulizia Cache GPU e Shader (.config) ---
-    echo "🔍 Controllo cache secondarie (GPUCache) in $CHROME_CONFIG_ROOT..."
-    if [ -d "$CHROME_CONFIG_ROOT" ]; then
-        find "$CHROME_CONFIG_ROOT" -type d \( -name "GPUCache" -o -name "ShaderCache" \) | while read -r extra_cache; do
-            echo "   🗑️  Rimuovo: $extra_cache"
-            rm -rf "$extra_cache"
-        done
-        echo "✅ Cache GPU e Shader svuotate."
-    fi
+# Se nessuna app specificata, pulisci tutto
+if [ ${#APPS_TO_CLEAN[@]} -eq 0 ]; then
+    APPS_TO_CLEAN=("${APP_LIST[@]}")
+fi
 
-    echo "✅ Pulizia Chrome completata. Al prossimo avvio Chrome sarà un po' più lento a caricare le prime pagine."
-}
+# ==============================================================================
+# MAIN
+# ==============================================================================
 
-clean_pcloud() {
-    echo -e "\n\n\n### PULIZIA PCLOUD ###\n"
+clear
 
-    # Controllo processo pCloud
-    check_process_running "pcloud" || return 1
+echo ""
+echo -e "${BOLD}🔄 PULIZIA CACHE SISTEMA${RESET}"
+echo "========================================"
+if $DRY_RUN; then
+    echo -e "${YELLOW}  ⚠️  MODALITÀ DRY-RUN — nessun file verrà cancellato${RESET}"
+fi
+echo "  App: ${APPS_TO_CLEAN[*]}"
+echo "========================================"
 
-    # --- FASE 1: Pulizia Cache ---
-    clean_directory "$PCLOUD_CACHE_PATH" "Pulizia Cache temporanea pCloud"
+for app in "${APPS_TO_CLEAN[@]}"; do
+    case "$app" in
+        thunderbird) clean_thunderbird ;;
+        firefox)     clean_firefox ;;
+        librewolf)   clean_librewolf ;;
+        chrome)      clean_chrome ;;
+        chromium)    clean_chromium ;;
+        pcloud)      clean_pcloud ;;
+        konqueror)   clean_konqueror ;;
+    esac
+done
 
-    # --- FASE 2: Pulizia Thumbnails ---
-    clean_directory "$PCLOUD_TN_PATH" "Pulizia Thumbnails pCloud"
-
-    echo "✅ Cartelle pCloud pulite."
-}
-
-clean_history() {
-    echo -e "\n\n\n### PULIZIA TERMINAL HISTORY ###\n"
-
-    history -c
-
-    echo "✅ Pulizia terminale completata."
-}
-
-# Esecuzione principale
-main() {
-    echo "🔄 INIZIO PULIZIA COMPLETA SISTEMA"
-    echo "==================================="
-
-    clean_thunderbird
-    clean_chrome
-    clean_pcloud
-    clean_firefox_cache
-    # clean_history
-
-    echo -e "\n\n\n🎉 PULIZIA COMPLETATA CON SUCCESSO!"
-    echo "==================================="
-    echo "Tutti i programmi sono stati puliti."
-    echo -e "I prossimi avvi potrebbero essere più lenti mentre ricostruiscono le cache.\n\n\n"
-}
-
-# Esegui lo script principale
-main
+echo ""
+echo "========================================"
+if $DRY_RUN; then
+    echo -e "${YELLOW}  📊 Spazio che verrebbe liberato: $(format_bytes "$BYTES_TOTAL")${RESET}"
+    echo -e "${YELLOW}  ℹ️  DRY-RUN completato. Nessun file è stato eliminato.${RESET}"
+else
+    echo -e "${GREEN}  📊 Spazio liberato: $(format_bytes "$BYTES_TOTAL")${RESET}"
+    echo -e "${GREEN}  🎉 PULIZIA COMPLETATA CON SUCCESSO!${RESET}"
+fi
+echo "========================================"
+echo ""
